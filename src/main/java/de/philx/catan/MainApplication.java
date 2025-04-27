@@ -1,16 +1,16 @@
 package de.philx.catan;
 
+import de.philx.catan.Cards.Developments.DevelopmentCard;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
 public class MainApplication extends Application {
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
+
         Label label = new Label("Hello World");
         VBox root = new VBox(label);
 
