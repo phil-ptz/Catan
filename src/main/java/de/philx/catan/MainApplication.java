@@ -1,20 +1,26 @@
 package de.philx.catan;
 
-import de.philx.catan.Cards.Developments.DevelopmentCard;
 import javafx.application.Application;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
+
+import java.util.Arrays;
+
+import static java.lang.Math.sqrt;
 
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) {
 
-        Label label = new Label("Hello World");
-        VBox root = new VBox(label);
+        VBox root = new VBox();
 
-        Scene scene = new Scene(root, 400, 300);
+        GameField gameField = new GameField(50.0);
+        root.getChildren().addAll(gameField.toGroup());
+
+        Scene scene = new Scene(root, 800, 600);
 
         stage.setTitle("Catan");
         stage.setScene(scene);
