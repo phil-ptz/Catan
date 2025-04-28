@@ -1,15 +1,10 @@
 package de.philx.catan;
 
+import de.philx.catan.GameField.GameField;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
-
-import java.util.Arrays;
-
-import static java.lang.Math.sqrt;
 
 public class MainApplication extends Application {
     @Override
@@ -21,9 +16,10 @@ public class MainApplication extends Application {
         root.getChildren().addAll(gameField.toGroup());
 
         Scene scene = new Scene(root, 800, 600);
+        Scene startScene = new Scene(new StartScreen(), 800, 600);
 
         stage.setTitle("Catan");
-        stage.setScene(scene);
+        stage.setScene(startScene);
         stage.show();
     }
 

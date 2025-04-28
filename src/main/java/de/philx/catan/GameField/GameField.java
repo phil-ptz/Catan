@@ -1,9 +1,7 @@
-package de.philx.catan;
+package de.philx.catan.GameField;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
-
-import java.util.Arrays;
 
 import static java.lang.Math.sqrt;
 

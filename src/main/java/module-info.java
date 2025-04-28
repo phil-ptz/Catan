@@ -1,6 +1,7 @@
 module de.philx.catan {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.desktop;
 
 
     opens de.philx.catan to javafx.fxml;
@@ -12,4 +13,6 @@ module de.philx.catan {
     exports de.philx.catan.Players;
     opens de.philx.catan.Players to javafx.fxml;
     opens de.philx.catan.Cards.Resources to javafx.fxml;
+    exports de.philx.catan.GameField;
+    opens de.philx.catan.GameField to javafx.fxml;
 }
