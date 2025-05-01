@@ -1,26 +1,40 @@
 package de.philx.catan;
 
-import de.philx.catan.GameField.GameField;
+import de.philx.catan.Screens.GameScreen;
+import de.philx.catan.Screens.SettingsScreen;
+import de.philx.catan.Screens.StartScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.scene.layout.VBox;
 
 public class MainApplication extends Application {
+
+    private Stage stage;
+    private final int width = 800;
+    private final int height = 600;
+
     @Override
     public void start(Stage stage) {
+        this.stage = stage;
+        this.stage.setTitle("Catan");
 
-        VBox root = new VBox();
+        startMenu();
+        this.stage.show();
+    }
 
-        GameField gameField = new GameField(50.0);
-        root.getChildren().addAll(gameField.toGroup());
+    private void startMenu() {
+        Scene scene = new Scene(new StartScreen(this::startGame, this::startSettings), width, height);
+        this.stage.setScene(scene);
+    }
 
-        Scene scene = new Scene(root, 800, 600);
-        Scene startScene = new Scene(new StartScreen(), 800, 600);
+    private void startGame() {
+        Scene scene = new Scene(new GameScreen(), width, height);
+        this.stage.setScene(scene);
+    }
 
-        stage.setTitle("Catan");
-        stage.setScene(startScene);
-        stage.show();
+    private void startSettings() {
+        Scene scene = new Scene(new SettingsScreen(this::startMenu), width, height);
+        this.stage.setScene(scene);
     }
 
     public static void main(String[] args) {

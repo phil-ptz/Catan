@@ -1,4 +1,4 @@
-package de.philx.catan;
+package de.philx.catan.Screens;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -8,7 +8,7 @@ import javafx.scene.text.Text;
 
 public class StartScreen extends StackPane {
 
-    public StartScreen() {
+    public StartScreen(Runnable onStart, Runnable onSettings) {
         Text title = new Text("Die Siedler von Casastan");
         Button startButton = new Button("Neues Spiel");
         Button settingsButton = new Button("Einstellungen");
@@ -16,8 +16,8 @@ public class StartScreen extends StackPane {
 
         VBox vbox = new VBox(20);
 
-        startButton.setOnAction(event -> {});
-        settingsButton.setOnAction(event -> {});
+        startButton.setOnAction(event -> {onStart.run();});
+        settingsButton.setOnAction(event -> {onSettings.run();});
         quitButton.setOnAction(event -> Platform.exit());
 
         vbox.getChildren().addAll(title, startButton, settingsButton, quitButton);

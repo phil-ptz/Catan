@@ -15,4 +15,6 @@ module de.philx.catan {
     opens de.philx.catan.Cards.Resources to javafx.fxml;
     exports de.philx.catan.GameField;
     opens de.philx.catan.GameField to javafx.fxml;
+    exports de.philx.catan.Screens;
+    opens de.philx.catan.Screens to javafx.fxml;
 }

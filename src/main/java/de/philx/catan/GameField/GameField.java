@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 
 import static java.lang.Math.sqrt;
 
-public class GameField {
+public class GameField{
 
     private final Hexagon[] hexagons;
 
