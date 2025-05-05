@@ -28,7 +28,7 @@ public class MainApplication extends Application {
     }
 
     private void startGame() {
-        Scene scene = new Scene(new GameScreen(), width, height);
+        Scene scene = new Scene(new GameScreen(width, height), width, height);
         this.stage.setScene(scene);
     }
 
