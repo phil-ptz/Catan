@@ -13,22 +13,26 @@ public class GameField{
 
         hexagons = new Hexagon[19];
 
-        int[] rowCounts = {3,4,5,4,3};
+        double r = hexagonRadius; // Radius
+        double dx = 1.9 * r; // horizontaler Abstand zwischen Mittelpunkten
+        double dy = sqrt(3) * r; // vertikaler Abstand zwischen Reihen
 
+        int[] rowCounts = {3, 4, 5, 4, 3};
         int n = 0;
         for (int i = 0; i < rowCounts.length; i++) {
-            for (int j = 0; j < rowCounts[i]; j++) {
+            int count = rowCounts[i];
+            double y = i * dy + 10;
+            double offsetX = (5 - count) * dx / 2; // zentrieren
 
-                double apothem = (hexagonRadius * sqrt(3.0)) / 2.0;
-                double offset = (i%2) * apothem;
-                if (i==0 || i==rowCounts.length-1) {offset = apothem*2;};
-                Hexagon hexagon = new Hexagon(apothem*j*2+offset, apothem*i*2+10, hexagonRadius, Color.RED, new int[]{i, j});
-                hexagon.setStroke(Color.BLACK);
-                hexagon.setStrokeWidth(10.0);
-                hexagons[n++] = hexagon;
-
+            for (int j = 0; j < count; j++) {
+                double x = j * dx + offsetX;
+                Hexagon hex = new Hexagon(x, y, r, Color.RED, new int[]{i, j});
+                hex.setStroke(Color.BLACK);
+                hex.setStrokeWidth(2.0);
+                hexagons[n++] = hex;
             }
         }
+
     }
 
     public Group toGroup() {
