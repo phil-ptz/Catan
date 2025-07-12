@@ -1,6 +1,9 @@
 package de.philx.catan.GameField;
 
 import de.philx.catan.GamePieces.Street;
+import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 
 /**
  * Represents an edge on the game board where roads can be built
@@ -79,6 +82,21 @@ public class Edge {
         return hasAdjacentPlayerRoadOrBuilding(playerId);
     }
     
+    /**
+     * Checks if this edge is valid for road placement during setup phase
+     * @param playerId The ID of the player attempting to place the road
+     * @param connectedSettlementNode The node where the player just placed a settlement
+     * @return true if road placement is valid for setup
+     */
+    public boolean isValidForSetupRoad(int playerId, Node connectedSettlementNode) {
+        if (hasRoad()) {
+            return false;
+        }
+        
+        // During setup, road must connect to the settlement just placed
+        return connectsToNode(connectedSettlementNode);
+    }
+    
     private boolean hasAdjacentPlayerRoadOrBuilding(int playerId) {
         // Check if either node has a building owned by the player
         if (node1.hasBuilding() && node1.getBuilding().getPlayerId() == playerId) {
@@ -101,6 +119,55 @@ public class Edge {
         }
         
         return false;
+    }
+    
+    /**
+     * Convert player color character to JavaFX Color
+     * @param colorChar The color character (R, B, G, Y)
+     * @return JavaFX Color object
+     */
+    private Color getPlayerColorAsJavaFXColor(char colorChar) {
+        switch (colorChar) {
+            case 'R': return Color.RED;
+            case 'B': return Color.BLUE;
+            case 'G': return Color.GREEN;
+            case 'Y': return Color.YELLOW;
+            default: return Color.GRAY;
+        }
+    }
+
+    /**
+     * Creates a visual representation of this edge
+     * @param showAsClickable Whether to show as a clickable placement option
+     * @return Group containing the visual elements
+     */
+    public Group createVisualGroup(boolean showAsClickable) {
+        Group group = new Group();
+        
+        // Create line for edge
+        Line edgeLine = new Line(node1.getX(), node1.getY(), node2.getX(), node2.getY());
+        
+        if (hasRoad()) {
+            // Show existing road
+            edgeLine.setStroke(getPlayerColorAsJavaFXColor(road.getColor()));
+            edgeLine.setStrokeWidth(4);
+        } else if (showAsClickable) {
+            // Show as placement option
+            edgeLine.setStroke(Color.LIGHTGREEN);
+            edgeLine.setStrokeWidth(6);
+            edgeLine.setOpacity(0.7);
+            
+            // Add ID for click handling
+            edgeLine.setUserData("edge_" + id);
+        } else {
+            // Show as normal edge
+            edgeLine.setStroke(Color.LIGHTGRAY);
+            edgeLine.setStrokeWidth(1);
+            edgeLine.setOpacity(0.3);
+        }
+        
+        group.getChildren().add(edgeLine);
+        return group;
     }
     
     @Override

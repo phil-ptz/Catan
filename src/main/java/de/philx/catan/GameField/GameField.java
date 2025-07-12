@@ -80,16 +80,17 @@ public class GameField {
 
     /**
      * Creates all nodes on the board
+     * Uses distance-based deduplication to handle imperfect hexagon spacing
      */
     private void createNodes() {
         int nodeId = 0;
         double r = hexagonRadius;
-        double dx = 1.9 * r;
+        double dx = 1.9 * r; // Current hexagon spacing (not ideal, but we work with it)
         double dy = sqrt(3) * r;
         int[] rowCounts = {3, 4, 5, 4, 3};
         
-        // Create nodes for each hexagon corner
-        Set<String> nodePositions = new HashSet<>();
+        // Collect all potential node positions first
+        List<double[]> allPositions = new ArrayList<>();
         
         for (int i = 0; i < rowCounts.length; i++) {
             int count = rowCounts[i];
@@ -106,18 +107,47 @@ public class GameField {
                     double nodeX = centerX + r * Math.cos(angle);
                     double nodeY = centerY + r * Math.sin(angle);
                     
-                    // Round coordinates to avoid floating point precision issues
-                    String positionKey = String.format("%.1f,%.1f", nodeX, nodeY);
-                    
-                    if (!nodePositions.contains(positionKey)) {
-                        nodePositions.add(positionKey);
-                        nodes.add(new Node(nodeId++, nodeX, nodeY));
-                    }
+                    allPositions.add(new double[]{nodeX, nodeY});
                 }
             }
         }
+        
+        // Now deduplicate based on distance threshold
+        // Two nodes are considered the same if they are within this distance
+        // Since dx is 1.27 times too large, we need a larger tolerance
+        double tolerance = r * 0.3; // 30% of radius to handle the spacing issue
+        
+        List<double[]> uniquePositions = new ArrayList<>();
+        
+        for (double[] candidate : allPositions) {
+            boolean isDuplicate = false;
+            
+            for (double[] existing : uniquePositions) {
+                double distance = Math.sqrt(
+                    Math.pow(candidate[0] - existing[0], 2) + 
+                    Math.pow(candidate[1] - existing[1], 2)
+                );
+                
+                if (distance < tolerance) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            
+            if (!isDuplicate) {
+                uniquePositions.add(candidate);
+            }
+        }
+        
+        // Create nodes from unique positions
+        for (double[] pos : uniquePositions) {
+            nodes.add(new Node(nodeId++, pos[0], pos[1]));
+        }
+        
+        // Debug output can be removed in production
+        // System.out.println("Created " + nodes.size() + " unique nodes for the game board");
     }
-
+    
     /**
      * Creates all edges between adjacent nodes
      */
@@ -259,11 +289,31 @@ public class GameField {
      * Creates a JavaFX Group for visualization
      */
     public Group toGroup() {
+        return toGroup(false, null);
+    }
+    
+    /**
+     * Creates a JavaFX Group for visualization with optional building placement mode
+     * @param showPlacementOptions Whether to show clickable placement options
+     * @param buildingType The type of building to place (null for normal view)
+     * @return Group containing all visual elements
+     */
+    public Group toGroup(boolean showPlacementOptions, String buildingType) {
         Group group = new Group();
         
         // Add all hexagons with their visual elements
         for (Hexagon hex : hexagons) {
             group.getChildren().add(hex.createVisualGroup());
+        }
+        
+        // Add edges (roads) as lines
+        for (Edge edge : edges) {
+            group.getChildren().add(edge.createVisualGroup(showPlacementOptions && "road".equals(buildingType)));
+        }
+        
+        // Add nodes (settlement/city spots) as small circles
+        for (Node node : nodes) {
+            group.getChildren().add(node.createVisualGroup(showPlacementOptions && ("settlement".equals(buildingType) || "city".equals(buildingType))));
         }
         
         return group;

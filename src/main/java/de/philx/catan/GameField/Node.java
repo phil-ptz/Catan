@@ -5,6 +5,9 @@ import de.philx.catan.GamePieces.Settlement;
 import de.philx.catan.GamePieces.City;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 /**
  * Represents a node on the game board where settlements and cities can be built
@@ -95,11 +98,12 @@ public class Node {
      * @return true if placement is valid according to distance rule
      */
     public boolean isValidForSettlement() {
+        // Rule 1: Node must not already have a building
         if (hasBuilding()) {
             return false;
         }
         
-        // Check that no adjacent nodes have buildings
+        // Rule 2: No adjacent nodes can have buildings (distance rule)
         for (Node adjacentNode : adjacentNodes) {
             if (adjacentNode.hasBuilding()) {
                 return false;
@@ -126,5 +130,78 @@ public class Node {
                 ", y=" + y +
                 ", building=" + building +
                 '}';
+    }
+
+    /**
+     * Visual representation of the node as a circle
+     * @return a Group containing the visual elements of the node
+     */
+    public Group toVisual() {
+        Circle circle = new Circle(x, y, 20); // Radius of 20 for visibility
+        circle.setFill(hasBuilding() ? Color.GRAY : Color.LIGHTGREEN);
+        circle.setStroke(Color.BLACK);
+        circle.setStrokeWidth(2);
+
+        Group group = new Group(circle);
+        group.setUserData(this); // Store reference to this node
+
+        return group;
+    }
+
+    /**
+     * Creates a visual representation of this node
+     * @param showAsClickable Whether to show as a clickable placement option
+     * @return Group containing the visual elements
+     */
+    public Group createVisualGroup(boolean showAsClickable) {
+        Group group = new Group();
+        
+        // Create circle for node
+        Circle nodeCircle = new Circle(x, y, showAsClickable ? 8 : 5);
+        
+        if (hasBuilding()) {
+            // Show existing building
+            if (hasSettlement()) {
+                nodeCircle.setFill(getPlayerColorAsJavaFXColor(building.getColor()));
+                nodeCircle.setStroke(Color.BLACK);
+                nodeCircle.setStrokeWidth(2);
+            } else if (hasCity()) {
+                nodeCircle.setFill(getPlayerColorAsJavaFXColor(building.getColor()));
+                nodeCircle.setStroke(Color.BLACK);
+                nodeCircle.setStrokeWidth(3);
+                nodeCircle.setRadius(showAsClickable ? 10 : 7);
+            }
+        } else if (showAsClickable) {
+            // Show as placement option
+            nodeCircle.setFill(Color.LIGHTGREEN);
+            nodeCircle.setOpacity(0.7);
+            nodeCircle.setStroke(Color.DARKGREEN);
+            nodeCircle.setStrokeWidth(2);
+            
+            // Add ID for click handling
+            nodeCircle.setUserData("node_" + id);
+        } else {
+            // Show as normal node
+            nodeCircle.setFill(Color.LIGHTGRAY);
+            nodeCircle.setOpacity(0.3);
+        }
+        
+        group.getChildren().add(nodeCircle);
+        return group;
+    }
+
+    /**
+     * Convert player color character to JavaFX Color
+     * @param colorChar The color character (R, B, G, Y)
+     * @return JavaFX Color object
+     */
+    private Color getPlayerColorAsJavaFXColor(char colorChar) {
+        switch (colorChar) {
+            case 'R': return Color.RED;
+            case 'B': return Color.BLUE;
+            case 'G': return Color.GREEN;
+            case 'Y': return Color.YELLOW;
+            default: return Color.GRAY;
+        }
     }
 }

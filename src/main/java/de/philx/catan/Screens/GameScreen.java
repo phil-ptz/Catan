@@ -21,7 +21,7 @@ public class GameScreen extends HBox {
     public GameScreen(int width, int height, Runnable onReturnToMenu) {
         this.gameController = new GameController();
         this.gameFieldGroup = gameController.getGameField().toGroup();
-        this.playerInterface = new PlayerInterface(gameController, onReturnToMenu);
+        this.playerInterface = new PlayerInterface(gameController, onReturnToMenu, this::refreshGameFieldDisplay);
         this.gameLegend = new GameLegend();
         
         this.setPrefSize(width, height);
@@ -59,10 +59,23 @@ public class GameScreen extends HBox {
      * @param event The mouse click event
      */
     private void handleGameFieldClick(MouseEvent event) {
-        if (!gameController.isWaitingForRobberPlacement()) {
-            return; // Only handle clicks when waiting for robber placement
+        // Check for robber placement first
+        if (gameController.isWaitingForRobberPlacement()) {
+            handleRobberPlacement(event);
+            return;
         }
         
+        // Check for building placement
+        if (gameController.isBuildingModeActive()) {
+            handleBuildingPlacement(event);
+            return;
+        }
+    }
+    
+    /**
+     * Handle robber placement clicks
+     */
+    private void handleRobberPlacement(MouseEvent event) {
         // Find which hexagon was clicked
         double clickX = event.getX();
         double clickY = event.getY();
@@ -81,14 +94,37 @@ public class GameScreen extends HBox {
     }
     
     /**
-     * Refresh the game field display to show updated robber position
+     * Handle building placement clicks
+     */
+    private void handleBuildingPlacement(MouseEvent event) {
+        // Check if any clickable element was clicked
+        if (event.getTarget() instanceof javafx.scene.Node) {
+            javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
+            Object userData = target.getUserData();
+            
+            if (userData instanceof String) {
+                String elementId = (String) userData;
+                if (elementId.startsWith("node_") || elementId.startsWith("edge_")) {
+                    boolean success = gameController.handleBuildingPlacement(elementId);
+                    if (success) {
+                        refreshGameFieldDisplay();
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Refresh the game field display to show updated state
      */
     private void refreshGameFieldDisplay() {
         // Remove old game field
         leftPanel.getChildren().remove(gameFieldGroup);
         
-        // Create new game field with updated state
-        gameFieldGroup = gameController.getGameField().toGroup();
+        // Create new game field with updated state and building mode
+        boolean showPlacementOptions = gameController.isBuildingModeActive();
+        String buildingType = gameController.getCurrentBuildingMode();
+        gameFieldGroup = gameController.getGameField().toGroup(showPlacementOptions, buildingType);
         setupGameFieldClickHandler();
         
         // Add updated game field back

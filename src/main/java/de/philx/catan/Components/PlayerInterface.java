@@ -13,6 +13,7 @@ public class PlayerInterface extends VBox {
 
     private final GameController gameController;
     private final Runnable onReturnToMenu;
+    private final Runnable onGameStateChanged; // New callback for game state changes
     private final Label currentPlayerLabel;
     private final Label diceResultLabel;
     private final Label gameMessageLabel;
@@ -21,9 +22,10 @@ public class PlayerInterface extends VBox {
     private Button diceButton;
     private Button endTurnButton;
     
-    public PlayerInterface(GameController gameController, Runnable onReturnToMenu) {
+    public PlayerInterface(GameController gameController, Runnable onReturnToMenu, Runnable onGameStateChanged) {
         this.gameController = gameController;
         this.onReturnToMenu = onReturnToMenu;
+        this.onGameStateChanged = onGameStateChanged;
         
         this.setSpacing(10);
         this.setPadding(new Insets(10));
@@ -154,8 +156,38 @@ public class PlayerInterface extends VBox {
     }
     
     private void handleBuild() {
-        // Placeholder for building functionality
-        System.out.println("Bauen - noch nicht implementiert");
+        // Show building options dialog or cycle through building types
+        showBuildingOptionsDialog();
+    }
+    
+    /**
+     * Show building options to the player
+     */
+    private void showBuildingOptionsDialog() {
+        // Create a simple selection dialog for building types
+        javafx.scene.control.ChoiceDialog<String> dialog = new javafx.scene.control.ChoiceDialog<>("Straße", "Straße", "Siedlung", "Stadt");
+        dialog.setTitle("Gebäude bauen");
+        dialog.setHeaderText("Wähle was du bauen möchtest:");
+        dialog.setContentText("Gebäudetyp:");
+        
+        java.util.Optional<String> result = dialog.showAndWait();
+        result.ifPresent(buildingType -> {
+            String mode = null;
+            switch (buildingType) {
+                case "Straße": mode = "road"; break;
+                case "Siedlung": mode = "settlement"; break;
+                case "Stadt": mode = "city"; break;
+            }
+            
+            if (mode != null) {
+                gameController.startBuildingMode(mode);
+                // Trigger refresh of game field
+                if (onGameStateChanged != null) {
+                    onGameStateChanged.run();
+                }
+                updateDisplays();
+            }
+        });
     }
     
     private void handleQuit() {

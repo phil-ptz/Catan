@@ -155,6 +155,16 @@ public class PlayerManager {
     }
     
     /**
+     * Set the current player index (for setup phase management)
+     * @param index The player index to set as current
+     */
+    public void setCurrentPlayerIndex(int index) {
+        if (index >= 0 && index < players.size()) {
+            currentPlayerIndex = index;
+        }
+    }
+    
+    /**
      * Get player by ID
      * @param playerId Player ID to find
      * @return Player object or null if not found
