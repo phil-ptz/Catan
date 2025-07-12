@@ -2,7 +2,6 @@ package de.philx.catan.Testing;
 
 import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.Node;
-import de.philx.catan.GamePieces.Street;
 import de.philx.catan.Players.Player;
 import de.philx.catan.Players.PlayerManager;
 import de.philx.catan.Cards.Special.LongestRoad;
