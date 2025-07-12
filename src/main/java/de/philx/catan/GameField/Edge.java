@@ -1,0 +1,115 @@
+package de.philx.catan.GameField;
+
+import de.philx.catan.GamePieces.Street;
+
+/**
+ * Represents an edge on the game board where roads can be built
+ */
+public class Edge {
+    private final int id;
+    private final Node node1;
+    private final Node node2;
+    private Street road; // Road built on this edge
+    
+    public Edge(int id, Node node1, Node node2) {
+        this.id = id;
+        this.node1 = node1;
+        this.node2 = node2;
+        this.road = null;
+    }
+    
+    public int getEdgeId() {
+        return id;
+    }
+    
+    public Node getNode1() {
+        return node1;
+    }
+    
+    public Node getNode2() {
+        return node2;
+    }
+    
+    public Street getRoad() {
+        return road;
+    }
+    
+    public void setRoad(Street road) {
+        this.road = road;
+    }
+    
+    public boolean hasRoad() {
+        return road != null;
+    }
+    
+    /**
+     * Checks if this edge connects to the given node
+     * @param node The node to check
+     * @return true if this edge connects to the node
+     */
+    public boolean connectsToNode(Node node) {
+        return node1.equals(node) || node2.equals(node);
+    }
+    
+    /**
+     * Gets the other node connected by this edge
+     * @param node One of the nodes connected by this edge
+     * @return The other connected node, or null if the given node is not connected
+     */
+    public Node getOtherNode(Node node) {
+        if (node1.equals(node)) {
+            return node2;
+        } else if (node2.equals(node)) {
+            return node1;
+        }
+        return null;
+    }
+    
+    /**
+     * Checks if this edge is valid for road placement
+     * @param playerId The ID of the player attempting to place the road
+     * @return true if road placement is valid
+     */
+    public boolean isValidForRoad(int playerId) {
+        if (hasRoad()) {
+            return false;
+        }
+        
+        // Check if player has an adjacent road or building
+        return hasAdjacentPlayerRoadOrBuilding(playerId);
+    }
+    
+    private boolean hasAdjacentPlayerRoadOrBuilding(int playerId) {
+        // Check if either node has a building owned by the player
+        if (node1.hasBuilding() && node1.getBuilding().getPlayerId() == playerId) {
+            return true;
+        }
+        if (node2.hasBuilding() && node2.getBuilding().getPlayerId() == playerId) {
+            return true;
+        }
+        
+        // Check if any adjacent edge has a road owned by the player
+        for (Edge edge : node1.getAdjacentEdges()) {
+            if (!edge.equals(this) && edge.hasRoad() && edge.getRoad().getPlayerId() == playerId) {
+                return true;
+            }
+        }
+        for (Edge edge : node2.getAdjacentEdges()) {
+            if (!edge.equals(this) && edge.hasRoad() && edge.getRoad().getPlayerId() == playerId) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "id=" + id +
+                ", node1=" + node1.getNodeId() +
+                ", node2=" + node2.getNodeId() +
+                ", road=" + road +
+                '}';
+    }
+}

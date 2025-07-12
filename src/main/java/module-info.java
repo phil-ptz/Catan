@@ -1,6 +1,7 @@
 module de.philx.catan {
     requires javafx.controls;
     requires javafx.fxml;
+    requires transitive javafx.graphics;
     requires java.desktop;
 
 

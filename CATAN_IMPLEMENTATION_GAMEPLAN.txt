@@ -1,0 +1,168 @@
+# CATAN IMPLEMENTATION GAMEPLAN
+
+## Project Overview
+JavaFX application implementing the 1995 version of CATAN board game with all core rules, designed to be maintainable, extensible, and user-friendly.
+
+## Technical Requirements
+- **Language**: Java (English codebase)
+- **Framework**: JavaFX
+- **Module System**: Modular Java project with module-info.java
+- **UI Language**: German or English
+- **Documentation**: German or English
+- **Target**: 3-4 player local game
+
+## Core Functions to Implement
+
+### 1. Game Board System
+- **Hexagonal Field Generation**
+  - 19 hexagonal fields with terrain types:
+    - Forest (Wood production)
+    - Pasture (Wool production) 
+    - Fields (Grain production)
+    - Hills (Clay production)
+    - Mountains (Ore production)
+    - Desert (no production)
+  - Assign dice numbers 2-12 (except desert)
+  - Implement field adjacency system for nodes and edges
+
+### 2. Player Management
+- **Player Class Enhancement**
+  - Support 3-4 players with unique names and colors
+  - Resource inventory: Wood, Clay, Grain, Wool, Ore
+  - Building inventory: Roads, Settlements, Cities
+  - Victory point calculation and tracking
+  - Turn order management
+
+### 3. Dice and Resource Production
+- **Dice Rolling System**
+  - Two-dice roll (2-12 range)
+  - Resource distribution based on dice result
+  - Settlement: 1 resource per adjacent field
+  - City: 2 resources per adjacent field
+  - No production when robber blocks field
+
+### 4. Robber Mechanics
+- **Robber Placement and Movement**
+  - Initial placement on desert field
+  - Activate on dice roll of 7
+  - Player-controlled movement to any field
+  - Block resource production on occupied field
+  - No resource cards stolen (simplified version)
+
+### 5. Building System
+- **Road Construction**
+  - Cost: 1 Wood + 1 Clay
+  - Must connect to existing roads or settlements
+  - Validate adjacency rules
+  
+- **Settlement Construction**
+  - Cost: 1 Wood + 1 Clay + 1 Grain + 1 Wool
+  - Only on free nodes
+  - Minimum 2-node distance from other settlements
+  - Awards 1 victory point
+  
+- **City Upgrade**
+  - Cost: 2 Grain + 3 Ore
+  - Only on existing own settlements
+  - Replace settlement with city
+  - Awards 2 victory points (total, not additional)
+
+### 6. Victory Conditions
+- **Win Condition Tracking**
+  - Target: 10 victory points
+  - Points from settlements: 1 point each
+  - Points from cities: 2 points each
+  - Optional: Longest road (2 points for 5+ connected roads)
+  - Immediate game end when 10 points reached
+
+### 7. Game Flow Management
+- **Turn-Based System**
+  - Dice roll phase
+  - Resource production phase
+  - Building action phase
+  - Turn transition
+  - Game state validation
+
+### 8. User Interface Design
+- **Game Screen Components**
+  - Hexagonal game board visualization
+  - Player information panels
+  - Resource counters
+  - Building placement interface
+  - Turn indicator
+  - Victory point display
+  
+- **Start Screen**
+  - Player setup (3-4 players)
+  - Name and color selection
+  - Game initialization
+  
+- **Settings Screen**
+  - Game options
+  - Display preferences
+
+### 9. Game Initialization
+- **Setup Phase**
+  - Random board generation
+  - Initial robber placement
+  - Player order determination
+  - Starting resources (if any)
+
+### 10. Input Validation
+- **Rule Enforcement**
+  - Building placement validation
+  - Resource requirement checking
+  - Legal move verification
+  - Turn action limitations
+
+## Excluded Features (As Per Requirements)
+- ❌ Development cards
+- ❌ Special cards (Largest Army, etc.)
+- ❌ Expansions (Cities & Knights, etc.)
+- ❌ Network functionality
+- ❌ AI opponents
+- ❌ Animations, music, sound effects
+- ❌ Resource card stealing from robber
+- ❌ Maritime trade
+
+## Optional Features
+- ✅ Trading between players (simple implementation)
+- ✅ Longest road calculation
+- ⚠️ Square fields instead of hexagons (7-point penalty)
+
+## Implementation Priority Order
+
+### Phase 1: Core Structure
+1. Game board representation (Hexagon, GameField)
+2. Player class with resources and buildings
+3. Basic UI framework (JavaFX screens)
+
+### Phase 2: Game Mechanics
+1. Dice rolling and resource production
+2. Building placement system
+3. Victory point calculation
+4. Turn management
+
+### Phase 3: Advanced Features
+1. Robber mechanics
+2. Building rule validation
+3. Game initialization and setup
+4. Win condition detection
+
+### Phase 4: Polish
+1. UI improvements
+2. Input validation
+3. Error handling
+4. Testing and debugging
+
+## Technical Architecture
+- **MVC Pattern**: Separate game logic from UI
+- **Modular Design**: Each component in separate packages
+- **Event-Driven**: UI responds to game state changes
+- **Extensible**: Design allows for future feature additions
+
+## Quality Assurance
+- **Stability**: Robust error handling and input validation
+- **Usability**: Intuitive interface design
+- **Maintainability**: Clean code structure and documentation
+- **Reliability**: Consistent game rule enforcement
