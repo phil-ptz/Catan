@@ -1,5 +1,7 @@
 package de.philx.catan.Players;
 
+import de.philx.catan.Cards.Special.LongestRoad;
+import de.philx.catan.GameField.Edge;
 import java.util.*;
 
 /**
@@ -16,6 +18,11 @@ public class PlayerManager {
     private final int minPlayers;
     private boolean gameStarted;
     
+    // Longest Road tracking
+    private LongestRoad longestRoadCard;
+    private int currentLongestRoadPlayerId;
+    private int currentLongestRoadLength;
+    
     /**
      * Create a new PlayerManager for a Catan game
      */
@@ -25,6 +32,11 @@ public class PlayerManager {
         this.maxPlayers = 4;
         this.minPlayers = 3;
         this.gameStarted = false;
+        
+        // Initialize longest road tracking
+        this.longestRoadCard = new LongestRoad();
+        this.currentLongestRoadPlayerId = -1;
+        this.currentLongestRoadLength = 0;
     }
     
     /**
@@ -300,6 +312,112 @@ public class PlayerManager {
         return players.size() >= minPlayers && !gameStarted;
     }
     
+    /**
+     * Update longest road calculations for all players and award/reassign the card
+     * @param edges All edges on the game board
+     * @return true if longest road ownership changed
+     */
+    public boolean updateLongestRoad(List<Edge> edges) {
+        if (!gameStarted) {
+            return false;
+        }
+        
+        int maxLength = 0;
+        Player newLongestRoadPlayer = null;
+        
+        // Calculate longest road for each player
+        for (Player player : players) {
+            int roadLength = player.calculateLongestRoad(edges);
+            if (roadLength >= LongestRoad.getMinimumRoadLength() && roadLength > maxLength) {
+                maxLength = roadLength;
+                newLongestRoadPlayer = player;
+            }
+        }
+        
+        // Check if ownership should change
+        if (newLongestRoadPlayer == null) {
+            // No one qualifies for longest road
+            if (currentLongestRoadPlayerId != -1) {
+                removeLongestRoadFromCurrentPlayer();
+                return true;
+            }
+            return false;
+        }
+        
+        // Check if there's a new longest road holder
+        if (newLongestRoadPlayer.getPlayerId() != currentLongestRoadPlayerId) {
+            // Remove from current holder if any
+            if (currentLongestRoadPlayerId != -1) {
+                removeLongestRoadFromCurrentPlayer();
+            }
+            
+            // Award to new holder
+            awardLongestRoadToPlayer(newLongestRoadPlayer, maxLength);
+            return true;
+        }
+        
+        // Update length even if same player holds it
+        currentLongestRoadLength = maxLength;
+        return false;
+    }
+    
+    /**
+     * Award the longest road card to a player
+     * @param player The player to award the card to
+     * @param roadLength The length of their longest road
+     */
+    private void awardLongestRoadToPlayer(Player player, int roadLength) {
+        currentLongestRoadPlayerId = player.getPlayerId();
+        currentLongestRoadLength = roadLength;
+        longestRoadCard.setPlayerId(player.getPlayerId());
+        player.addVictoryPoints(longestRoadCard.getVictoryPoints());
+        player.calculateVictoryPoints(); // Recalculate total points
+    }
+    
+    /**
+     * Remove the longest road card from the current holder
+     */
+    private void removeLongestRoadFromCurrentPlayer() {
+        if (currentLongestRoadPlayerId != -1) {
+            Player currentHolder = getPlayerById(currentLongestRoadPlayerId);
+            if (currentHolder != null) {
+                currentHolder.removeVictoryPoints(longestRoadCard.getVictoryPoints());
+                currentHolder.calculateVictoryPoints(); // Recalculate total points
+            }
+        }
+        
+        currentLongestRoadPlayerId = -1;
+        currentLongestRoadLength = 0;
+        longestRoadCard.deactivate();
+    }
+    
+    /**
+     * Get the player who currently holds the longest road card
+     * @return Player with longest road, or null if no one has it
+     */
+    public Player getLongestRoadPlayer() {
+        if (currentLongestRoadPlayerId == -1) {
+            return null;
+        }
+        return getPlayerById(currentLongestRoadPlayerId);
+    }
+    
+    /**
+     * Get the current longest road length
+     * @return The length of the current longest road
+     */
+    public int getCurrentLongestRoadLength() {
+        return currentLongestRoadLength;
+    }
+    
+    /**
+     * Check if any player currently holds the longest road card
+     * @return true if someone has the longest road card
+     */
+    public boolean hasLongestRoadHolder() {
+        return currentLongestRoadPlayerId != -1;
+    }
+
     /**
      * Get game statistics for all players
      * @return Map with player statistics

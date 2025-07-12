@@ -1,7 +1,13 @@
 package de.philx.catan.Players;
 
+import de.philx.catan.GameField.Edge;
+import de.philx.catan.GameField.Node;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class represents a player in the Catan game. A player has attributes related
@@ -392,6 +398,76 @@ public class Player {
     
     public void setLongestRoadLength(int length) {
         this.longestRoadLength = length;
+    }
+    
+    /**
+     * Calculate the longest continuous road for this player
+     * @param edges List of all edges on the game board
+     * @return The length of the longest continuous road
+     */
+    public int calculateLongestRoad(List<Edge> edges) {
+        // Get all edges with roads owned by this player
+        List<Edge> playerRoads = new ArrayList<>();
+        for (Edge edge : edges) {
+            if (edge.hasRoad() && edge.getRoad().getPlayerId() == this.playerId) {
+                playerRoads.add(edge);
+            }
+        }
+        
+        if (playerRoads.isEmpty()) {
+            return 0;
+        }
+        
+        int maxLength = 0;
+        
+        // Try starting from each road segment to find the longest path
+        for (Edge startEdge : playerRoads) {
+            Set<Edge> visited = new HashSet<>();
+            int length = findLongestPath(startEdge, playerRoads, visited);
+            maxLength = Math.max(maxLength, length);
+        }
+        
+        this.longestRoadLength = maxLength;
+        return maxLength;
+    }
+    
+    /**
+     * Recursively find the longest path starting from a given edge
+     * @param currentEdge The current edge in the path
+     * @param playerRoads All roads owned by this player
+     * @param visited Set of already visited edges
+     * @return The length of the longest path from this edge
+     */
+    private int findLongestPath(Edge currentEdge, List<Edge> playerRoads, Set<Edge> visited) {
+        visited.add(currentEdge);
+        int maxLength = 1; // Current edge counts as 1
+        
+        // Check both nodes of the current edge for connecting roads
+        Node[] nodes = {currentEdge.getNode1(), currentEdge.getNode2()};
+        
+        for (Node node : nodes) {
+            // Skip if this node has an opponent's building (blocks the road)
+            if (node.hasBuilding() && node.getBuilding().getPlayerId() != this.playerId) {
+                continue;
+            }
+            
+            // Find all roads connected to this node
+            for (Edge adjacentEdge : node.getAdjacentEdges()) {
+                // Skip if not our road, already visited, or same as current edge
+                if (!playerRoads.contains(adjacentEdge) || 
+                    visited.contains(adjacentEdge) || 
+                    adjacentEdge.equals(currentEdge)) {
+                    continue;
+                }
+                
+                // Recursively explore this path
+                Set<Edge> newVisited = new HashSet<>(visited);
+                int pathLength = 1 + findLongestPath(adjacentEdge, playerRoads, newVisited);
+                maxLength = Math.max(maxLength, pathLength);
+            }
+        }
+        
+        return maxLength;
     }
     
     /**

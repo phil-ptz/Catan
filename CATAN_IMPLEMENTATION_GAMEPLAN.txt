@@ -78,7 +78,7 @@ JavaFX application implementing the 1995 version of CATAN board game with all co
   - ✅ Target: 10 victory points
   - ✅ Points from settlements: 1 point each
   - ✅ Points from cities: 2 points each
-  - ❌ Optional: Longest road (2 points for 5+ connected roads) - Not implemented
+  - ✅ Longest road (2 points for 5+ connected roads) - IMPLEMENTED
   - ✅ Immediate game end when 10 points reached
 
 ### 7. Game Flow Management ✅ COMPLETED

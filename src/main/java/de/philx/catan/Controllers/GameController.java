@@ -2,6 +2,11 @@ package de.philx.catan.Controllers;
 
 import de.philx.catan.GameField.GameField;
 import de.philx.catan.GameField.Hexagon;
+import de.philx.catan.GameField.Edge;
+import de.philx.catan.GameField.Node;
+import de.philx.catan.GamePieces.Street;
+import de.philx.catan.GamePieces.Settlement;
+import de.philx.catan.GamePieces.City;
 import de.philx.catan.Players.Player;
 import de.philx.catan.Players.PlayerManager;
 import javafx.beans.property.SimpleStringProperty;
@@ -236,6 +241,177 @@ public class GameController {
         System.out.println("[GAME] " + message); // Also log to console
     }
     
+    // === Building Methods ===
+    
+    /**
+     * Attempt to build a road on the specified edge
+     * @param edgeId The ID of the edge where the road should be built
+     * @return true if the road was built successfully
+     */
+    public boolean buildRoad(int edgeId) {
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer == null) {
+            setGameMessage("Kein aktiver Spieler!");
+            return false;
+        }
+        
+        // Check if player can afford a road
+        if (!currentPlayer.canBuildRoad()) {
+            setGameMessage("Nicht genügend Ressourcen für eine Straße!");
+            return false;
+        }
+        
+        // Check if placement is valid
+        if (!gameField.canPlaceRoad(edgeId, currentPlayer.getPlayerId())) {
+            setGameMessage("Straße kann hier nicht gebaut werden!");
+            return false;
+        }
+        
+        // Build the road
+        Edge edge = gameField.getEdge(edgeId);
+        if (edge == null) {
+            setGameMessage("Ungültige Kante!");
+            return false;
+        }
+        
+        // Pay resources and place road
+        if (currentPlayer.buildRoad()) {
+            Street road = new Street(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+            edge.setRoad(road);
+            
+            // Update longest road calculations
+            boolean longestRoadChanged = playerManager.updateLongestRoad(gameField.getEdges());
+            
+            setGameMessage("Straße gebaut!" + 
+                (longestRoadChanged ? " Längste Handelsstraße hat sich geändert!" : ""));
+            
+            // Check for winner (in case longest road gave winning points)
+            Player winner = playerManager.getWinner();
+            if (winner != null) {
+                setGameMessage("🎉 " + winner.getName() + " hat gewonnen! 🎉");
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Attempt to build a settlement on the specified node
+     * @param nodeId The ID of the node where the settlement should be built
+     * @return true if the settlement was built successfully
+     */
+    public boolean buildSettlement(int nodeId) {
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer == null) {
+            setGameMessage("Kein aktiver Spieler!");
+            return false;
+        }
+        
+        // Check if player can afford a settlement
+        if (!currentPlayer.canBuildSettlement()) {
+            setGameMessage("Nicht genügend Ressourcen für eine Siedlung!");
+            return false;
+        }
+        
+        // Check if placement is valid
+        if (!gameField.canPlaceSettlement(nodeId, currentPlayer.getPlayerId())) {
+            setGameMessage("Siedlung kann hier nicht gebaut werden!");
+            return false;
+        }
+        
+        // Build the settlement
+        Node node = gameField.getNode(nodeId);
+        if (node == null) {
+            setGameMessage("Ungültiger Knoten!");
+            return false;
+        }
+        
+        // Pay resources and place settlement
+        if (currentPlayer.buildSettlement()) {
+            Settlement settlement = new Settlement(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+            node.setBuilding(settlement);
+            
+            setGameMessage("Siedlung gebaut!");
+            
+            // Check for winner
+            Player winner = playerManager.getWinner();
+            if (winner != null) {
+                setGameMessage("🎉 " + winner.getName() + " hat gewonnen! 🎉");
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Attempt to upgrade a settlement to a city
+     * @param nodeId The ID of the node where the city should be built
+     * @return true if the city was built successfully
+     */
+    public boolean buildCity(int nodeId) {
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer == null) {
+            setGameMessage("Kein aktiver Spieler!");
+            return false;
+        }
+        
+        // Check if player can afford a city
+        if (!currentPlayer.canBuildCity()) {
+            setGameMessage("Nicht genügend Ressourcen für eine Stadt!");
+            return false;
+        }
+        
+        // Check if upgrade is valid
+        if (!gameField.canUpgradeToCity(nodeId, currentPlayer.getPlayerId())) {
+            setGameMessage("Stadt kann hier nicht gebaut werden!");
+            return false;
+        }
+        
+        // Build the city
+        Node node = gameField.getNode(nodeId);
+        if (node == null) {
+            setGameMessage("Ungültiger Knoten!");
+            return false;
+        }
+        
+        // Pay resources and place city
+        if (currentPlayer.buildCity()) {
+            City city = new City(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+            node.setBuilding(city);
+            
+            setGameMessage("Stadt gebaut!");
+            
+            // Check for winner
+            Player winner = playerManager.getWinner();
+            if (winner != null) {
+                setGameMessage("🎉 " + winner.getName() + " hat gewonnen! 🎉");
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get longest road information for display
+     * @return String with longest road information
+     */
+    public String getLongestRoadInfo() {
+        Player longestRoadPlayer = playerManager.getLongestRoadPlayer();
+        if (longestRoadPlayer == null) {
+            return "Längste Handelsstraße: Niemand (min. 5 Straßen)";
+        }
+        
+        return String.format("Längste Handelsstraße: %s (%d Straßen, +2 Siegpunkte)", 
+            longestRoadPlayer.getName(), 
+            playerManager.getCurrentLongestRoadLength());
+    }
+    
     // Getters
     public GameField getGameField() {
         return gameField;
@@ -288,10 +464,16 @@ public class GameController {
         Player player = getCurrentPlayer();
         if (player == null) return "Keine Gebäude";
         
-        return String.format("Straßen: %d, Siedlungen: %d, Städte: %d, Siegpunkte: %d",
+        String longestRoadStatus = "";
+        if (playerManager.getLongestRoadPlayer() == player) {
+            longestRoadStatus = " (Längste Straße +2)";
+        }
+        
+        return String.format("Straßen: %d, Siedlungen: %d, Städte: %d, Siegpunkte: %d%s",
             player.getAvailableRoads(),
             player.getAvailableSettlements(),
             player.getAvailableCities(),
-            player.getVictoryPoints());
+            player.getVictoryPoints(),
+            longestRoadStatus);
     }
 }
