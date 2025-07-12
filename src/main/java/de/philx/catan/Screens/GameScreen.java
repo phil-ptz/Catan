@@ -18,10 +18,10 @@ public class GameScreen extends HBox {
     private final GameLegend gameLegend;
     private VBox leftPanel;
 
-    public GameScreen(int width, int height) {
+    public GameScreen(int width, int height, Runnable onReturnToMenu) {
         this.gameController = new GameController();
         this.gameFieldGroup = gameController.getGameField().toGroup();
-        this.playerInterface = new PlayerInterface(gameController);
+        this.playerInterface = new PlayerInterface(gameController, onReturnToMenu);
         this.gameLegend = new GameLegend();
         
         this.setPrefSize(width, height);

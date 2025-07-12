@@ -12,6 +12,7 @@ import javafx.scene.text.FontWeight;
 public class PlayerInterface extends VBox {
 
     private final GameController gameController;
+    private final Runnable onReturnToMenu;
     private final Label currentPlayerLabel;
     private final Label diceResultLabel;
     private final Label gameMessageLabel;
@@ -20,8 +21,9 @@ public class PlayerInterface extends VBox {
     private Button diceButton;
     private Button endTurnButton;
     
-    public PlayerInterface(GameController gameController) {
+    public PlayerInterface(GameController gameController, Runnable onReturnToMenu) {
         this.gameController = gameController;
+        this.onReturnToMenu = onReturnToMenu;
         
         this.setSpacing(10);
         this.setPadding(new Insets(10));
@@ -157,8 +159,10 @@ public class PlayerInterface extends VBox {
     }
     
     private void handleQuit() {
-        // Placeholder for quitting to main menu
-        System.out.println("Zum Hauptmenü - noch nicht implementiert");
+        // Return to main menu
+        if (onReturnToMenu != null) {
+            onReturnToMenu.run();
+        }
     }
     
     private void startPeriodicUpdates() {

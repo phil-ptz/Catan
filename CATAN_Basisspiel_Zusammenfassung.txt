@@ -1,0 +1,38 @@
+
+CATAN - Spielanleitung (Basisspiel) - Zusammenfassung
+
+1. Vorbereitung:
+- Jeder Spieler erhält: 1 Baukostenkarte, 5 Siedlungen, 4 Städte, 15 Straßen.
+- Startaufstellung: 2 Siedlungen + 2 Straßen auf dem Spielbrett laut Anleitung.
+- Rohstoffkarten (5 Stapel), Entwicklungskarten (verdeckt), Sonderkarten („Längste Handelsstraße“, „Größte Rittermacht“) bereitlegen.
+- Erste Rohstoffe erhält jeder Spieler für seine Siedlung mit Stern.
+
+2. Spielablauf:
+Jeder Zug besteht aus 3 Phasen:
+1. Würfeln der Rohstofferträge (für alle Spieler).
+2. Handeln: mit Mitspielern (Binnenhandel) oder der Bank (Seehandel).
+3. Bauen: Straßen, Siedlungen, Städte oder Entwicklungskarten.
+
+3. Bauen:
+- Straße: Holz + Lehm
+- Siedlung: Holz + Lehm + Wolle + Getreide
+- Stadt: 3 Erz + 2 Getreide (nur durch Ausbau einer Siedlung)
+- Entwicklungskarte: Erz + Wolle + Getreide
+
+4. Handel:
+- Binnenhandel: nur mit dem aktiven Spieler.
+- Seehandel:
+  - Standard: 4 gleiche Karten gegen 1 beliebige.
+  - Mit Hafen: 3:1 oder 2:1 (je nach Hafenart).
+
+5. Sonderfälle:
+- „7“ gewürfelt: Kein Ertrag, Räuber wird versetzt, Karten abgeben (über 7 Handkarten).
+- Räuber blockiert Erträge des Feldes.
+- Entwicklungskarten:
+  - Ritter: Räuber versetzen, 3 Ritter = „Größte Rittermacht“.
+  - Fortschritt: Sofortige Aktion laut Karte.
+  - Siegpunkt: Geheim, zählt zum Spielende.
+
+6. Spielende:
+- Wer zuerst 10 Siegpunkte erreicht (und am Zug ist), gewinnt.
+
