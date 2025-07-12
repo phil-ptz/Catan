@@ -3,6 +3,7 @@ package de.philx.catan;
 import de.philx.catan.Screens.GameScreen;
 import de.philx.catan.Screens.SettingsScreen;
 import de.philx.catan.Screens.StartScreen;
+import de.philx.catan.Utils.ThemeManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
@@ -42,16 +43,19 @@ public class MainApplication extends Application {
 
     private void startMenu() {
         Scene scene = new Scene(new StartScreen(this::startGame, this::startSettings), (int) width, (int) height);
+        ThemeManager.getInstance().applyTheme(scene);
         this.stage.setScene(scene);
     }
 
     private void startGame() {
         Scene scene = new Scene(new GameScreen((int) width, (int) height, this::startMenu), (int) width, (int) height);
+        ThemeManager.getInstance().applyTheme(scene);
         this.stage.setScene(scene);
     }
 
     private void startSettings() {
         Scene scene = new Scene(new SettingsScreen(this::startMenu), (int) width, (int) height);
+        ThemeManager.getInstance().applyTheme(scene);
         this.stage.setScene(scene);
     }
 

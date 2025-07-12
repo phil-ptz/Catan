@@ -4,11 +4,12 @@ import de.philx.catan.Components.GameLegend;
 import de.philx.catan.Components.PlayerInterface;
 import de.philx.catan.Controllers.GameController;
 import de.philx.catan.GameField.GameField;
+import de.philx.catan.Utils.ThemeManager;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 public class GameScreen extends HBox {
 
@@ -45,6 +46,13 @@ public class GameScreen extends HBox {
         // Add both panels to the main HBox
         this.getChildren().addAll(leftPanel, rightPanel);
         HBox.setHgrow(leftPanel, Priority.ALWAYS);
+        
+        // Apply current theme when screen is created
+        this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                ThemeManager.getInstance().applyTheme(newScene);
+            }
+        });
     }
     
     /**

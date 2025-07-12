@@ -2,6 +2,7 @@ package de.philx.catan.Components;
 
 import de.philx.catan.GameField.TerrainType;
 import de.philx.catan.Players.Player;
+import de.philx.catan.Utils.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -26,10 +27,63 @@ public class GameLegend extends VBox {
         this.setSpacing(LEGEND_SPACING);
         this.setPadding(new Insets(10));
         this.setAlignment(Pos.TOP_LEFT);
-        this.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #333333; -fx-border-width: 2;");
         this.setPrefWidth(250);
         
+        // Apply current theme when component is created
+        this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                applyCurrentTheme();
+            }
+        });
+        
+        // Register for theme change notifications
+        ThemeManager.getInstance().addThemeChangeListener(this::applyCurrentTheme);
+        
         initializeLegend();
+    }
+    
+    /**
+     * Apply the current theme to the GameLegend component
+     */
+    public void applyCurrentTheme() {
+        ThemeManager themeManager = ThemeManager.getInstance();
+        if (themeManager.isDarkMode()) {
+            this.setStyle("-fx-background-color: #404040; -fx-border-color: #606060; -fx-border-width: 2;");
+        } else {
+            this.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #333333; -fx-border-width: 2;");
+        }
+        
+        // Update text colors for all labels
+        updateTextColors();
+    }
+    
+    /**
+     * Update text colors for all labels in the legend
+     */
+    private void updateTextColors() {
+        ThemeManager themeManager = ThemeManager.getInstance();
+        String textColor = themeManager.isDarkMode() ? "#ffffff" : "#000000";
+        
+        // Recursively update all Label nodes
+        updateLabelsInNode(this, textColor);
+    }
+    
+    /**
+     * Recursively update all Label nodes in a container
+     */
+    private void updateLabelsInNode(javafx.scene.Parent parent, String textColor) {
+        parent.getChildrenUnmodifiable().forEach(node -> {
+            if (node instanceof Label) {
+                Label label = (Label) node;
+                // Don't override special colored labels (like dice numbers)
+                if (!label.getStyle().contains("-fx-text-fill: rgb(") && 
+                    !label.getStyle().contains("-fx-text-fill: #")) {
+                    label.setStyle(label.getStyle() + "-fx-text-fill: " + textColor + ";");
+                }
+            } else if (node instanceof javafx.scene.Parent) {
+                updateLabelsInNode((javafx.scene.Parent) node, textColor);
+            }
+        });
     }
     
     private void initializeLegend() {

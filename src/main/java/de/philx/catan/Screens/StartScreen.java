@@ -1,5 +1,6 @@
 package de.philx.catan.Screens;
 
+import de.philx.catan.Utils.ThemeManager;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
@@ -24,5 +25,12 @@ public class StartScreen extends StackPane {
         vbox.setAlignment(javafx.geometry.Pos.CENTER);
 
         this.getChildren().addAll(vbox);
+        
+        // Apply current theme when screen is created
+        this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                ThemeManager.getInstance().applyTheme(newScene);
+            }
+        });
     }
 }
