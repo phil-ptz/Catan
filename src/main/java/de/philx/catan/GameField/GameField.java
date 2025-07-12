@@ -233,6 +233,18 @@ public class GameField {
             hexagons[hexagonId].setRobber(true);
             robberPosition = hexagonId;
         }
+        
+        // Refresh the visual representation
+        refreshVisualRepresentation();
+    }
+    
+    /**
+     * Refresh the visual representation of the game field
+     */
+    private void refreshVisualRepresentation() {
+        // This method would ideally trigger a UI update
+        // For now, we just mark that the state has changed
+        // The UI should call toGroup() again to get updated visuals
     }
 
     /**

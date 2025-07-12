@@ -1,8 +1,10 @@
-package de.philx.catan.Players;
+package de.philx.catan.Testing;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import de.philx.catan.Players.Player;
+import de.philx.catan.Players.PlayerManager;
 
 /**
  * Test class to demonstrate and validate Player and PlayerManager functionality.

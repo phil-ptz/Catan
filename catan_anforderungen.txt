@@ -1,0 +1,126 @@
+Projektziel
+Entwicklung einer JavaFX-Anwendung, die das Brettspiel "CATAN – Das Spiel" (1995-Version) vollständig simuliert. Die Anwendung muss alle Kernregeln des Spiels umsetzen, benutzerfreundlich, wartbar und erweiterbar sein. Erweiterungen, Entwicklungskarten und Sonderkarten sind nicht erforderlich.
+
+Allgemeine Anforderungen
+Programmiersprache: Java (Code in Englisch)
+
+Framework: JavaFX
+
+Modulares Java-Projekt mit module-info.java
+
+Benutzeroberfläche: Deutsch oder Englisch
+
+Keine Netzwerkfunktionen
+
+Keine KI-Gegner
+
+Keine Animationen, Musik oder Soundeffekte
+
+Externe Java-Bibliotheken erlaubt
+
+Optional: Statt Hexfeldern dürfen Quadrate verwendet werden (führt zu Punktabzug)
+
+Spielziel
+Das Ziel des Spiels ist es, als erster Spieler 10 Siegpunkte zu erreichen. Siegpunkte werden durch den Bau von Siedlungen, Städten und optional durch die längste Straße erreicht. Es gibt keine Entwicklungskarten oder Sonderkarten in dieser Umsetzung.
+
+Spielfeldstruktur
+Das Spielfeld besteht aus 19 sechseckigen Feldern mit unterschiedlichen Geländetypen:
+
+Wald: produziert Holz
+
+Weide: produziert Wolle
+
+Acker: produziert Getreide
+
+Hügel: produziert Lehm
+
+Gebirge: produziert Erz
+
+Wüste: produziert nichts
+
+Jedes Feld erhält eine Würfelzahl von 2 bis 12 (außer das Wüstenfeld). Diese Zahl bestimmt, bei welchem Würfelergebnis das Feld Ressourcen produziert. Jedes Feld hat benachbarte Knotenpunkte (für Siedlungen/Städte) und Kanten (für Straßen). Der Räuber startet auf dem Wüstenfeld.
+
+Spielerstruktur
+Ein Spiel wird von 3 bis 4 Spielern gespielt. Jeder Spieler verfügt über:
+
+Namen und Farbe
+
+Ressourcen: Holz, Lehm, Getreide, Wolle, Erz
+
+Bauwerke: Siedlungen, Städte, Straßen
+
+Siegpunkte
+
+Spieleraktionen pro Zug
+
+Spielverlauf pro Runde
+Der Spieler würfelt mit zwei Würfeln (Wert 2–12).
+
+Alle Spieler erhalten Ressourcen von Feldern mit der gewürfelten Zahl, sofern sie angrenzende Siedlungen oder Städte besitzen:
+
+Siedlung: 1 Ressource
+
+Stadt: 2 Ressourcen
+
+Bei einer 7 wird der Räuber aktiviert:
+
+Kein Spieler erhält Ressourcen
+
+Der aktive Spieler setzt den Räuber auf ein beliebiges Feld
+
+Das betroffene Feld produziert keine Ressourcen, solange der Räuber dort steht
+
+Der Spieler darf Aktionen ausführen:
+
+Straßen bauen
+
+Siedlungen bauen
+
+Siedlungen zu Städten ausbauen
+
+Mit anderen Spielern handeln (optional, ohne KI oder Bankhandel)
+
+Der Zug endet, der nächste Spieler ist an der Reihe
+
+Baukosten
+Straße: 1 Holz, 1 Lehm
+
+Siedlung: 1 Holz, 1 Lehm, 1 Getreide, 1 Wolle
+
+Stadt: 2 Getreide, 3 Erz
+
+Bauvoraussetzungen
+Straßen müssen an eigene bestehende Straßen oder Siedlungen anschließen
+
+Siedlungen dürfen nur auf freien Knotenpunkten mit einem Mindestabstand von zwei Knoten zu anderen Siedlungen gebaut werden
+
+Städte dürfen nur auf bestehenden eigenen Siedlungen errichtet werden
+
+Bau ist nur möglich, wenn der Spieler über die notwendigen Ressourcen verfügt
+
+Ressourcenverteilung
+Die Ressourcenproduktion erfolgt nach jedem Würfeln, basierend auf der Zahl des jeweiligen Feldes. Wenn ein Spieler eine Siedlung oder Stadt an einem Feld mit der gewürfelten Zahl besitzt, erhält er Ressourcen entsprechend der Bauform. Städte liefern die doppelte Menge.
+
+Siegbedingungen
+Das Spiel endet sofort, sobald ein Spieler 10 Siegpunkte erreicht. Siegpunkte ergeben sich aus:
+
+Jede Siedlung: 1 Punkt
+
+Jede Stadt: 2 Punkte
+
+Optionale Regel: Längste Handelsstraße (2 Punkte für den Spieler mit der längsten zusammenhängenden Straßenkette ab 5 Straßen)
+
+Vereinfachungen laut Aufgabenstellung
+Entwicklungskarten werden nicht implementiert
+
+Sonderkarten werden nicht implementiert
+
+Erweiterungen (z. B. Städte und Ritter) werden nicht implementiert
+
+Netzwerkfunktionalitäten werden nicht implementiert
+
+Computergegner werden nicht implementiert
+
+Animationen, Musik und Soundeffekte werden nicht implementiert
+
+Für einen Punktabzug von 7 Punkten dürfen anstelle von Hexfeldern Quadrate verwendet werden

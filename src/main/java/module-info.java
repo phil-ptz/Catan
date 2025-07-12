@@ -18,4 +18,6 @@ module de.philx.catan {
     opens de.philx.catan.GameField to javafx.fxml;
     exports de.philx.catan.Screens;
     opens de.philx.catan.Screens to javafx.fxml;
+    exports de.philx.catan.Controllers;
+    opens de.philx.catan.Controllers to javafx.fxml;
 }

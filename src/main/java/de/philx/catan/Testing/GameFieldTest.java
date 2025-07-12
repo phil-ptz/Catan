@@ -1,4 +1,10 @@
-package de.philx.catan.GameField;
+package de.philx.catan.Testing;
+
+import de.philx.catan.GameField.GameField;
+import de.philx.catan.GameField.TerrainType;
+import de.philx.catan.GameField.Hexagon;
+import de.philx.catan.GameField.Node;
+import de.philx.catan.GameField.Edge;
 
 /**
  * Test class for the Game Board System
