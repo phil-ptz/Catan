@@ -1,6 +1,7 @@
 package de.philx.catan.Components;
 
 import de.philx.catan.Controllers.GameController;
+import de.philx.catan.Utils.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -78,6 +79,16 @@ public class PlayerInterface extends VBox {
             buildingsLabel,
             buttonGrid
         );
+        
+        // Apply current theme when interface is created
+        this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                applyCurrentTheme();
+            }
+        });
+        
+        // Register for theme change notifications
+        ThemeManager.getInstance().addThemeChangeListener(this::applyCurrentTheme);
         
         // Start updating displays
         startPeriodicUpdates();
@@ -213,5 +224,32 @@ public class PlayerInterface extends VBox {
         // Update button states based on game state
         diceButton.setDisable(!gameController.canCurrentPlayerRollDice());
         endTurnButton.setDisable(!gameController.getPlayerManager().isGameStarted());
+    }
+    
+    /**
+     * Apply the current theme to all labels in the PlayerInterface
+     */
+    public void applyCurrentTheme() {
+        ThemeManager themeManager = ThemeManager.getInstance();
+        String textColor = themeManager.isDarkMode() ? "#ffffff" : "#000000";
+        
+        // Apply text color to all labels
+        currentPlayerLabel.setStyle("-fx-text-fill: " + textColor + ";");
+        diceResultLabel.setStyle("-fx-text-fill: " + textColor + ";");
+        gameMessageLabel.setStyle("-fx-text-fill: " + textColor + ";");
+        resourcesLabel.setStyle("-fx-text-fill: " + textColor + ";");
+        buildingsLabel.setStyle("-fx-text-fill: " + textColor + ";");
+        
+        // Apply text color to all static labels
+        this.getChildren().forEach(node -> {
+            if (node instanceof Label && 
+                (((Label) node).getText().equals("Aktueller Spieler:") ||
+                 ((Label) node).getText().equals("Würfelergebnis:") ||
+                 ((Label) node).getText().equals("Spielnachrichten:") ||
+                 ((Label) node).getText().equals("Ressourcen:") ||
+                 ((Label) node).getText().equals("Gebäude:"))) {
+                node.setStyle("-fx-text-fill: " + textColor + ";");
+            }
+        });
     }
 }
