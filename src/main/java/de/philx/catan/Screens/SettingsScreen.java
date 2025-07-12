@@ -1,6 +1,5 @@
 package de.philx.catan.Screens;
 
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
