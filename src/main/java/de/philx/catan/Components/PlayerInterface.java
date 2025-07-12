@@ -177,5 +177,9 @@ public class PlayerInterface extends VBox {
     private void updateDisplays() {
         resourcesLabel.setText(gameController.getCurrentPlayerResources());
         buildingsLabel.setText(gameController.getCurrentPlayerBuildings());
+        
+        // Update button states based on game state
+        diceButton.setDisable(!gameController.canCurrentPlayerRollDice());
+        endTurnButton.setDisable(!gameController.getPlayerManager().isGameStarted());
     }
 }

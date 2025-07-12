@@ -81,10 +81,25 @@ public class GameController {
             return lastDiceRoll;
         }
         
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer == null) {
+            setGameMessage("Kein aktiver Spieler!");
+            return 0;
+        }
+        
+        // Check if player has already rolled dice this turn
+        if (currentPlayer.hasRolledDice()) {
+            setGameMessage(currentPlayer.getName() + " hat bereits gewürfelt! Beende deinen Zug.");
+            return lastDiceRoll;
+        }
+        
         // Roll two dice
         int dice1 = diceRandom.nextInt(6) + 1;
         int dice2 = diceRandom.nextInt(6) + 1;
         lastDiceRoll = dice1 + dice2;
+        
+        // Mark that player has rolled dice this turn
+        currentPlayer.setHasRolledDice(true);
         
         // Update dice display
         diceResultProperty.set(String.format("Würfel: %d + %d = %d", dice1, dice2, lastDiceRoll));
@@ -423,6 +438,19 @@ public class GameController {
     
     public Player getCurrentPlayer() {
         return playerManager.getCurrentPlayer();
+    }
+    
+    /**
+     * Check if the current player can roll dice
+     * @return true if the current player can roll dice
+     */
+    public boolean canCurrentPlayerRollDice() {
+        if (!playerManager.isGameStarted() || waitingForRobberPlacement) {
+            return false;
+        }
+        
+        Player currentPlayer = getCurrentPlayer();
+        return currentPlayer != null && !currentPlayer.hasRolledDice();
     }
     
     public boolean isWaitingForRobberPlacement() {

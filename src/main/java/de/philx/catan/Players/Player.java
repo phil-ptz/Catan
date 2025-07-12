@@ -27,6 +27,7 @@ public class Player {
     private String color;  // Changed to String for better color representation
     private int playerId;
     private boolean isActive;
+    private boolean hasRolledDice; // Track if player has rolled dice this turn
     
     // Resource inventory (Wood, Clay, Grain, Wool, Ore)
     private Map<ResourceType, Integer> resourceInventory;
@@ -325,6 +326,7 @@ public class Player {
      */
     public void startTurn() {
         isActive = true;
+        hasRolledDice = false; // Reset dice roll state for new turn
     }
     
     /**
@@ -332,6 +334,22 @@ public class Player {
      */
     public void endTurn() {
         isActive = false;
+        hasRolledDice = false; // Ensure dice state is reset
+    }
+    
+    /**
+     * Mark that the player has rolled dice this turn
+     */
+    public void setHasRolledDice(boolean hasRolled) {
+        this.hasRolledDice = hasRolled;
+    }
+    
+    /**
+     * Check if the player has already rolled dice this turn
+     * @return true if dice have been rolled this turn
+     */
+    public boolean hasRolledDice() {
+        return hasRolledDice;
     }
     
     // === Getters and Setters ===
