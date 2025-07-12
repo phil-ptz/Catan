@@ -1,8 +1,8 @@
 package de.philx.catan.Utils;
 
-import javafx.scene.Scene;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.Scene;
 
 public class ThemeManager {
     private static ThemeManager instance;
