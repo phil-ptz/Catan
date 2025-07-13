@@ -157,12 +157,108 @@ public class GameField {
     
     /**
      * Creates all edges between adjacent nodes
+     * Each hexagon has 6 edges connecting its 6 corner nodes in sequence
      */
     private void createEdges() {
         int edgeId = 0;
-        double connectionThreshold = hexagonRadius * 1.1; // Slightly larger than hexagon side length
+        double r = hexagonRadius;
+        double dx = 1.9 * r;
+        double dy = sqrt(3) * r;
+        int[] rowCounts = {3, 4, 5, 4, 3};
         
-        // Connect nodes that are close enough to each other
+        // For each hexagon, create edges between its corner nodes
+        for (int i = 0; i < rowCounts.length; i++) {
+            int count = rowCounts[i];
+            double y = i * dy + 10;
+            double offsetX = (5 - count) * dx / 2;
+
+            for (int j = 0; j < count; j++) {
+                double centerX = j * dx + offsetX;
+                double centerY = y;
+                
+                // Find the 6 corner nodes for this hexagon
+                List<Node> hexCorners = new ArrayList<>();
+                for (int corner = 0; corner < 6; corner++) {
+                    double angle = Math.toRadians(60 * corner - 30);
+                    double nodeX = centerX + r * Math.cos(angle);
+                    double nodeY = centerY + r * Math.sin(angle);
+                    
+                    // Find the closest existing node to this corner position
+                    Node closestNode = findClosestNode(nodeX, nodeY);
+                    if (closestNode != null && !hexCorners.contains(closestNode)) {
+                        hexCorners.add(closestNode);
+                    }
+                }
+                
+                // Create edges between consecutive corner nodes
+                for (int k = 0; k < hexCorners.size(); k++) {
+                    Node node1 = hexCorners.get(k);
+                    Node node2 = hexCorners.get((k + 1) % hexCorners.size());
+                    
+                    // Check if edge already exists
+                    if (!edgeExists(node1, node2)) {
+                        Edge edge = new Edge(edgeId++, node1, node2);
+                        edges.add(edge);
+                        
+                        // Update node adjacency
+                        node1.addAdjacentNode(node2);
+                        node2.addAdjacentNode(node1);
+                        node1.addAdjacentEdge(edge);
+                        node2.addAdjacentEdge(edge);
+                    }
+                }
+            }
+        }
+        
+        // Also create connections between hexagons (internal edges)
+        createInternalConnections();
+    }
+    
+    /**
+     * Find the closest node to a given position
+     */
+    private Node findClosestNode(double x, double y) {
+        Node closestNode = null;
+        double minDistance = Double.MAX_VALUE;
+        double tolerance = hexagonRadius * 0.5; // Tolerance for finding nodes
+        
+        for (Node node : nodes) {
+            double distance = Math.sqrt(
+                Math.pow(node.getX() - x, 2) + 
+                Math.pow(node.getY() - y, 2)
+            );
+            
+            if (distance < minDistance && distance <= tolerance) {
+                minDistance = distance;
+                closestNode = node;
+            }
+        }
+        
+        return closestNode;
+    }
+    
+    /**
+     * Check if an edge already exists between two nodes
+     */
+    private boolean edgeExists(Node node1, Node node2) {
+        for (Edge edge : edges) {
+            if ((edge.getNode1().equals(node1) && edge.getNode2().equals(node2)) ||
+                (edge.getNode1().equals(node2) && edge.getNode2().equals(node1))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Create additional connections between nodes that should be connected
+     * but aren't part of individual hexagon edges (shared edges between hexagons)
+     */
+    private void createInternalConnections() {
+        int edgeId = edges.size();
+        double connectionThreshold = hexagonRadius * 1.05; // Slightly larger than hexagon side length
+        
+        // Connect nodes that are close enough and should be connected
         for (int i = 0; i < nodes.size(); i++) {
             Node node1 = nodes.get(i);
             for (int j = i + 1; j < nodes.size(); j++) {
@@ -173,18 +269,60 @@ public class GameField {
                     Math.pow(node1.getY() - node2.getY(), 2)
                 );
                 
-                if (distance <= connectionThreshold) {
-                    Edge edge = new Edge(edgeId++, node1, node2);
-                    edges.add(edge);
-                    
-                    // Update node adjacency
-                    node1.addAdjacentNode(node2);
-                    node2.addAdjacentNode(node1);
-                    node1.addAdjacentEdge(edge);
-                    node2.addAdjacentEdge(edge);
+                // Only connect if they're the right distance apart and don't already have an edge
+                if (distance <= connectionThreshold && !edgeExists(node1, node2)) {
+                    // Additional check: they should share at least one hexagon
+                    if (shareAdjacentHexagon(node1, node2)) {
+                        Edge edge = new Edge(edgeId++, node1, node2);
+                        edges.add(edge);
+                        
+                        // Update node adjacency
+                        node1.addAdjacentNode(node2);
+                        node2.addAdjacentNode(node1);
+                        node1.addAdjacentEdge(edge);
+                        node2.addAdjacentEdge(edge);
+                    }
                 }
             }
         }
+    }
+    
+    /**
+     * Check if two nodes share an adjacent hexagon
+     */
+    private boolean shareAdjacentHexagon(Node node1, Node node2) {
+        // First establish which hexagons are adjacent to each node
+        double nodeProximityThreshold = hexagonRadius * 1.1;
+        
+        List<Hexagon> node1Hexagons = new ArrayList<>();
+        List<Hexagon> node2Hexagons = new ArrayList<>();
+        
+        for (Hexagon hex : hexagons) {
+            double distance1 = Math.sqrt(
+                Math.pow(hex.getCenterX() - node1.getX(), 2) + 
+                Math.pow(hex.getCenterY() - node1.getY(), 2)
+            );
+            double distance2 = Math.sqrt(
+                Math.pow(hex.getCenterX() - node2.getX(), 2) + 
+                Math.pow(hex.getCenterY() - node2.getY(), 2)
+            );
+            
+            if (distance1 <= nodeProximityThreshold) {
+                node1Hexagons.add(hex);
+            }
+            if (distance2 <= nodeProximityThreshold) {
+                node2Hexagons.add(hex);
+            }
+        }
+        
+        // Check if they share any hexagons
+        for (Hexagon hex : node1Hexagons) {
+            if (node2Hexagons.contains(hex)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
