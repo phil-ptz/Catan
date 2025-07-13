@@ -103,6 +103,53 @@ public class Edge {
         return false;
     }
     
+    /**
+     * Creates a visual representation of this edge
+     * @param showAsClickable Whether to show as a clickable placement option
+     * @return Group containing the visual elements
+     */
+    public javafx.scene.Group createVisualGroup(boolean showAsClickable) {
+        javafx.scene.Group group = new javafx.scene.Group();
+        
+        // Create line for edge
+        javafx.scene.shape.Line edgeLine = new javafx.scene.shape.Line(
+            node1.getX(), node1.getY(), 
+            node2.getX(), node2.getY()
+        );
+        
+        if (hasRoad()) {
+            // Show existing road
+            edgeLine.setStroke(getPlayerColorAsJavaFXColor(road.getPlayerId()));
+            edgeLine.setStrokeWidth(4);
+        } else if (showAsClickable) {
+            // Show as placement option
+            edgeLine.setStroke(javafx.scene.paint.Color.LIGHTBLUE);
+            edgeLine.setStrokeWidth(3);
+            edgeLine.setOpacity(0.7);
+        } else {
+            // Show as available spot
+            edgeLine.setStroke(javafx.scene.paint.Color.LIGHTGRAY);
+            edgeLine.setStrokeWidth(1);
+            edgeLine.setOpacity(0.3);
+        }
+        
+        group.getChildren().add(edgeLine);
+        return group;
+    }
+    
+    /**
+     * Convert player ID to JavaFX Color
+     */
+    private javafx.scene.paint.Color getPlayerColorAsJavaFXColor(int playerId) {
+        switch (playerId) {
+            case 0: return javafx.scene.paint.Color.RED;
+            case 1: return javafx.scene.paint.Color.BLUE;
+            case 2: return javafx.scene.paint.Color.WHITE;
+            case 3: return javafx.scene.paint.Color.ORANGE;
+            default: return javafx.scene.paint.Color.GRAY;
+        }
+    }
+    
     @Override
     public String toString() {
         return "Edge{" +

@@ -47,11 +47,9 @@ public class GameLegend extends VBox {
      */
     public void applyCurrentTheme() {
         ThemeManager themeManager = ThemeManager.getInstance();
-        if (themeManager.isDarkMode()) {
-            this.setStyle("-fx-background-color: #404040; -fx-border-color: #606060; -fx-border-width: 2;");
-        } else {
-            this.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #333333; -fx-border-width: 2;");
-        }
+        
+        // Apply modern card styling
+        this.setStyle(themeManager.getCardStyle());
         
         // Update text colors for all labels
         updateTextColors();
@@ -87,10 +85,11 @@ public class GameLegend extends VBox {
     }
     
     private void initializeLegend() {
-        // Main title
-        Label titleLabel = new Label("CATAN Legend");
-        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        titleLabel.setTextFill(Color.DARKBLUE);
+        // Main title with enhanced styling
+        Label titleLabel = new Label("CATAN Legende");
+        titleLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
+        titleLabel.setTextFill(Color.web(ThemeManager.ACCENT_COLOR));
+        titleLabel.setStyle("-fx-padding: 0 0 10 0;");
         
         // Terrain Types Section
         VBox terrainSection = createTerrainTypesSection();
@@ -106,13 +105,13 @@ public class GameLegend extends VBox {
         
         this.getChildren().addAll(
             titleLabel,
-            createSeparator(),
+            createStyledSeparator(),
             terrainSection,
-            createSeparator(),
+            createStyledSeparator(),
             playerSection,
-            createSeparator(),
+            createStyledSeparator(),
             diceSection,
-            createSeparator(),
+            createStyledSeparator(),
             buildingSection
         );
     }
@@ -120,23 +119,24 @@ public class GameLegend extends VBox {
     private VBox createTerrainTypesSection() {
         VBox section = new VBox(ITEM_SPACING);
         
-        Label sectionTitle = new Label("Terrain Types & Resources");
-        sectionTitle.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        Label sectionTitle = new Label("🏞️ Gelände & Ressourcen");
+        sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         section.getChildren().add(sectionTitle);
         
         for (TerrainType terrain : TerrainType.values()) {
-            HBox terrainItem = new HBox(5);
+            HBox terrainItem = new HBox(8);
             terrainItem.setAlignment(Pos.CENTER_LEFT);
+            terrainItem.setPadding(new Insets(4, 0, 4, 0));
             
             // Color indicator (small hexagon shape)
             Polygon hexagon = createSmallHexagon(terrain.getColor());
             
             // Terrain name and resource
             String resourceText = terrain == TerrainType.DESERT ? 
-                terrain.name() + " (No production)" : 
+                terrain.name() + " (Keine Produktion)" : 
                 terrain.name() + " → " + terrain.getResource();
             Label terrainLabel = new Label(resourceText);
-            terrainLabel.setFont(Font.font("Arial", 10));
+            terrainLabel.setFont(Font.font("Segoe UI", 11));
             
             terrainItem.getChildren().addAll(hexagon, terrainLabel);
             section.getChildren().add(terrainItem);
@@ -148,22 +148,23 @@ public class GameLegend extends VBox {
     private VBox createPlayerColorsSection() {
         VBox section = new VBox(ITEM_SPACING);
         
-        Label sectionTitle = new Label("Player Colors");
-        sectionTitle.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        Label sectionTitle = new Label("👥 Spielerfarben");
+        sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         section.getChildren().add(sectionTitle);
         
         for (Player.PlayerColor color : Player.PlayerColor.values()) {
-            HBox colorItem = new HBox(5);
+            HBox colorItem = new HBox(8);
             colorItem.setAlignment(Pos.CENTER_LEFT);
+            colorItem.setPadding(new Insets(4, 0, 4, 0));
             
-            // Color indicator
-            Circle colorIndicator = new Circle(8);
+            // Color indicator with enhanced styling
+            Circle colorIndicator = new Circle(10);
             colorIndicator.setFill(getPlayerColor(color));
-            colorIndicator.setStroke(Color.BLACK);
-            colorIndicator.setStrokeWidth(1);
+            colorIndicator.setStroke(Color.web(ThemeManager.getInstance().getBorderColor()));
+            colorIndicator.setStrokeWidth(1.5);
             
             Label colorLabel = new Label(color.getDisplayName());
-            colorLabel.setFont(Font.font("Arial", 10));
+            colorLabel.setFont(Font.font("Segoe UI", 11));
             
             colorItem.getChildren().addAll(colorIndicator, colorLabel);
             section.getChildren().add(colorItem);
@@ -175,29 +176,30 @@ public class GameLegend extends VBox {
     private VBox createDiceNumbersSection() {
         VBox section = new VBox(ITEM_SPACING);
         
-        Label sectionTitle = new Label("Dice Numbers");
-        sectionTitle.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        Label sectionTitle = new Label("🎲 Würfelzahlen");
+        sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         
-        Label explanationLabel = new Label("Numbers indicate dice roll needed for resource production");
-        explanationLabel.setFont(Font.font("Arial", 9));
+        Label explanationLabel = new Label("Zahlen zeigen benötigte Würfelergebnisse für Ressourcenproduktion");
+        explanationLabel.setFont(Font.font("Segoe UI", 10));
         explanationLabel.setWrapText(true);
-        explanationLabel.setTextFill(Color.DARKGRAY);
+        explanationLabel.setTextFill(Color.web(ThemeManager.getInstance().getSecondaryTextColor()));
         
-        Label probabilityLabel = new Label("• More dots (●) = Higher probability");
-        probabilityLabel.setFont(Font.font("Arial", 9));
-        probabilityLabel.setTextFill(Color.DARKGRAY);
+        Label probabilityLabel = new Label("• Mehr Punkte (●) = Höhere Wahrscheinlichkeit");
+        probabilityLabel.setFont(Font.font("Segoe UI", 10));
+        probabilityLabel.setTextFill(Color.web(ThemeManager.getInstance().getSecondaryTextColor()));
         
-        Label frequentLabel = new Label("• Most frequent: 6, 8 (5 dots each)");
-        frequentLabel.setFont(Font.font("Arial", 9));
-        frequentLabel.setTextFill(Color.DARKGRAY);
+        Label frequentLabel = new Label("• Häufigste: 6, 8 (je 5 Punkte)");
+        frequentLabel.setFont(Font.font("Segoe UI", 10));
+        frequentLabel.setTextFill(Color.web(ThemeManager.getInstance().getSecondaryTextColor()));
         
-        Label rareLabel = new Label("• Least frequent: 2, 12 (1 dot each)");
-        rareLabel.setFont(Font.font("Arial", 9));
-        rareLabel.setTextFill(Color.DARKGRAY);
+        Label rareLabel = new Label("• Seltenste: 2, 12 (je 1 Punkt)");
+        rareLabel.setFont(Font.font("Segoe UI", 10));
+        rareLabel.setTextFill(Color.web(ThemeManager.getInstance().getSecondaryTextColor()));
         
-        Label robberLabel = new Label("• Roll 7: Move robber (no production)");
-        robberLabel.setFont(Font.font("Arial", 9));
-        robberLabel.setTextFill(Color.RED);
+        Label robberLabel = new Label("• Würfel 7: Räuber bewegen (keine Produktion)");
+        robberLabel.setFont(Font.font("Segoe UI", 10));
+        robberLabel.setTextFill(Color.web(ThemeManager.DANGER_COLOR));
+        robberLabel.setStyle("-fx-font-weight: bold;");
         
         section.getChildren().addAll(
             sectionTitle,
@@ -214,38 +216,45 @@ public class GameLegend extends VBox {
     private VBox createBuildingCostsSection() {
         VBox section = new VBox(ITEM_SPACING);
         
-        Label sectionTitle = new Label("Building Costs");
-        sectionTitle.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        Label sectionTitle = new Label("🏗️ Baukosten");
+        sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         
         // Road cost
-        HBox roadItem = new HBox(5);
+        HBox roadItem = new HBox(8);
         roadItem.setAlignment(Pos.CENTER_LEFT);
-        Rectangle roadIcon = new Rectangle(15, 3, Color.BROWN);
-        Label roadLabel = new Label("Road: 1 Wood + 1 Clay");
-        roadLabel.setFont(Font.font("Arial", 9));
+        roadItem.setPadding(new Insets(4, 0, 4, 0));
+        Rectangle roadIcon = new Rectangle(18, 4, Color.web("#8B4513"));
+        roadIcon.setArcWidth(2);
+        roadIcon.setArcHeight(2);
+        Label roadLabel = new Label("Straße: 1 Holz + 1 Lehm");
+        roadLabel.setFont(Font.font("Segoe UI", 10));
         roadItem.getChildren().addAll(roadIcon, roadLabel);
         
         // Settlement cost
-        HBox settlementItem = new HBox(5);
+        HBox settlementItem = new HBox(8);
         settlementItem.setAlignment(Pos.CENTER_LEFT);
-        Polygon settlementIcon = createHouseShape(Color.BLUE);
-        Label settlementLabel = new Label("Settlement: 1 Wood + 1 Clay + 1 Grain + 1 Wool");
-        settlementLabel.setFont(Font.font("Arial", 9));
+        settlementItem.setPadding(new Insets(4, 0, 4, 0));
+        Polygon settlementIcon = createHouseShape(Color.web(ThemeManager.ACCENT_COLOR));
+        Label settlementLabel = new Label("Siedlung: 1 Holz + 1 Lehm + 1 Getreide + 1 Wolle");
+        settlementLabel.setFont(Font.font("Segoe UI", 10));
         settlementItem.getChildren().addAll(settlementIcon, settlementLabel);
         
         // City cost
-        HBox cityItem = new HBox(5);
+        HBox cityItem = new HBox(8);
         cityItem.setAlignment(Pos.CENTER_LEFT);
-        Rectangle cityIcon = new Rectangle(12, 12, Color.RED);
-        Label cityLabel = new Label("City: 2 Grain + 3 Ore (upgrade from Settlement)");
-        cityLabel.setFont(Font.font("Arial", 9));
+        cityItem.setPadding(new Insets(4, 0, 4, 0));
+        Rectangle cityIcon = new Rectangle(14, 14, Color.web(ThemeManager.DANGER_COLOR));
+        cityIcon.setArcWidth(3);
+        cityIcon.setArcHeight(3);
+        Label cityLabel = new Label("Stadt: 2 Getreide + 3 Erz (Upgrade von Siedlung)");
+        cityLabel.setFont(Font.font("Segoe UI", 10));
         cityItem.getChildren().addAll(cityIcon, cityLabel);
         
         // Victory points
-        Label victoryLabel = new Label("Victory Points: Settlement=1, City=2, Win at 10");
-        victoryLabel.setFont(Font.font("Arial", 9));
-        victoryLabel.setTextFill(Color.DARKGREEN);
-        victoryLabel.setStyle("-fx-font-weight: bold;");
+        Label victoryLabel = new Label("🏆 Siegpunkte: Siedlung=1, Stadt=2, Sieg bei 10");
+        victoryLabel.setFont(Font.font("Segoe UI", 10));
+        victoryLabel.setTextFill(Color.web(ThemeManager.SUCCESS_COLOR));
+        victoryLabel.setStyle("-fx-font-weight: bold; -fx-padding: 8 0 0 0;");
         
         section.getChildren().addAll(
             sectionTitle,
@@ -302,9 +311,11 @@ public class GameLegend extends VBox {
         }
     }
     
-    private Rectangle createSeparator() {
+    private Rectangle createStyledSeparator() {
         Rectangle separator = new Rectangle(220, 1);
-        separator.setFill(Color.LIGHTGRAY);
+        ThemeManager themeManager = ThemeManager.getInstance();
+        separator.setFill(Color.web(themeManager.getBorderColor()));
+        separator.setOpacity(0.5);
         return separator;
     }
 }

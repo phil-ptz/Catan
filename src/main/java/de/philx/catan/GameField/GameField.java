@@ -266,6 +266,45 @@ public class GameField {
             group.getChildren().add(hex.createVisualGroup());
         }
         
+        // Add edges (roads) - show all edges
+        for (Edge edge : edges) {
+            group.getChildren().add(edge.createVisualGroup(false));
+        }
+        
+        // Add nodes (settlement/city spots) - show all nodes
+        for (Node node : nodes) {
+            group.getChildren().add(node.createVisualGroup(false));
+        }
+        
+        return group;
+    }
+    
+    /**
+     * Creates a JavaFX Group for visualization with building placement mode
+     * @param showPlacementOptions Whether to show clickable placement options
+     * @param buildingType The type of building to place (null for normal view)
+     * @return Group containing all visual elements
+     */
+    public Group toGroup(boolean showPlacementOptions, String buildingType) {
+        Group group = new Group();
+        
+        // Add all hexagons with their visual elements
+        for (Hexagon hex : hexagons) {
+            group.getChildren().add(hex.createVisualGroup());
+        }
+        
+        // Add edges (roads)
+        boolean showEdgeOptions = showPlacementOptions && "road".equals(buildingType);
+        for (Edge edge : edges) {
+            group.getChildren().add(edge.createVisualGroup(showEdgeOptions));
+        }
+        
+        // Add nodes (settlement/city spots)
+        boolean showNodeOptions = showPlacementOptions && ("settlement".equals(buildingType) || "city".equals(buildingType));
+        for (Node node : nodes) {
+            group.getChildren().add(node.createVisualGroup(showNodeOptions));
+        }
+        
         return group;
     }
 

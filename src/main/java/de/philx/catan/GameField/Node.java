@@ -117,6 +117,61 @@ public class Node {
     public boolean isValidForCityUpgrade(int playerId) {
         return hasSettlement() && building.getPlayerId() == playerId;
     }
+    
+    /**
+     * Creates a visual representation of this node
+     * @param showAsClickable Whether to show as a clickable placement option
+     * @return Group containing the visual elements
+     */
+    public javafx.scene.Group createVisualGroup(boolean showAsClickable) {
+        javafx.scene.Group group = new javafx.scene.Group();
+        
+        // Create circle for node
+        javafx.scene.shape.Circle nodeCircle = new javafx.scene.shape.Circle(x, y, showAsClickable ? 8 : 5);
+        
+        if (hasBuilding()) {
+            // Show existing building
+            if (hasSettlement()) {
+                nodeCircle.setFill(getPlayerColorAsJavaFXColor(building.getPlayerId()));
+                nodeCircle.setStroke(javafx.scene.paint.Color.BLACK);
+                nodeCircle.setStrokeWidth(2);
+            } else if (hasCity()) {
+                nodeCircle.setFill(getPlayerColorAsJavaFXColor(building.getPlayerId()));
+                nodeCircle.setStroke(javafx.scene.paint.Color.BLACK);
+                nodeCircle.setStrokeWidth(3);
+                // Make cities slightly larger
+                nodeCircle.setRadius(showAsClickable ? 10 : 7);
+            }
+        } else if (showAsClickable) {
+            // Show as placement option
+            nodeCircle.setFill(javafx.scene.paint.Color.LIGHTGREEN);
+            nodeCircle.setStroke(javafx.scene.paint.Color.DARKGREEN);
+            nodeCircle.setStrokeWidth(2);
+            nodeCircle.setOpacity(0.7);
+        } else {
+            // Show as available spot
+            nodeCircle.setFill(javafx.scene.paint.Color.LIGHTGRAY);
+            nodeCircle.setStroke(javafx.scene.paint.Color.GRAY);
+            nodeCircle.setStrokeWidth(1);
+            nodeCircle.setOpacity(0.5);
+        }
+        
+        group.getChildren().add(nodeCircle);
+        return group;
+    }
+    
+    /**
+     * Convert player ID to JavaFX Color
+     */
+    private javafx.scene.paint.Color getPlayerColorAsJavaFXColor(int playerId) {
+        switch (playerId) {
+            case 0: return javafx.scene.paint.Color.RED;
+            case 1: return javafx.scene.paint.Color.BLUE;
+            case 2: return javafx.scene.paint.Color.WHITE;
+            case 3: return javafx.scene.paint.Color.ORANGE;
+            default: return javafx.scene.paint.Color.GRAY;
+        }
+    }
 
     @Override
     public String toString() {

@@ -227,6 +227,18 @@ public class Player {
     }
     
     /**
+     * Build a road during setup phase (no resource cost)
+     * @return true if road was built successfully
+     */
+    public boolean buildRoadSetup() {
+        if (availableRoads <= 0) return false;
+        
+        availableRoads--;
+        calculateVictoryPoints();
+        return true;
+    }
+    
+    /**
      * Check if player can build a settlement
      * @return true if player has available settlements and resources
      */
@@ -249,6 +261,19 @@ public class Player {
         removeResource(ResourceType.CLAY, 1);
         removeResource(ResourceType.GRAIN, 1);
         removeResource(ResourceType.WOOL, 1);
+        
+        availableSettlements--;
+        placedSettlements++;
+        calculateVictoryPoints();
+        return true;
+    }
+    
+    /**
+     * Build a settlement during setup phase (no resource cost)
+     * @return true if settlement was built successfully
+     */
+    public boolean buildSettlementSetup() {
+        if (availableSettlements <= 0) return false;
         
         availableSettlements--;
         placedSettlements++;

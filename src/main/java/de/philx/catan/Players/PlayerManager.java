@@ -18,6 +18,12 @@ public class PlayerManager {
     private final int minPlayers;
     private boolean gameStarted;
     
+    // Setup phase tracking for initial placement
+    private boolean setupPhase;
+    private int setupRound; // 1 or 2 (each player places 2 settlements and 2 roads)
+    private int setupPlayerIndex;
+    private boolean setupForward; // true for forward order, false for reverse order
+    
     // Longest Road tracking
     private LongestRoad longestRoadCard;
     private int currentLongestRoadPlayerId;
@@ -32,6 +38,12 @@ public class PlayerManager {
         this.maxPlayers = 4;
         this.minPlayers = 3;
         this.gameStarted = false;
+        
+        // Initialize setup phase
+        this.setupPhase = false;
+        this.setupRound = 1;
+        this.setupPlayerIndex = 0;
+        this.setupForward = true;
         
         // Initialize longest road tracking
         this.longestRoadCard = new LongestRoad();
@@ -112,12 +124,68 @@ public class PlayerManager {
         randomizeTurnOrder();
         
         gameStarted = true;
+        setupPhase = true; // Start in setup phase
         
         // Set first player as active after game is marked as started
         if (!players.isEmpty()) {
             getCurrentPlayer().startTurn();
         }
         
+        return true;
+    }
+    
+    /**
+     * Check if currently in setup phase (initial building placement)
+     * @return true if in setup phase
+     */
+    public boolean isSetupPhase() {
+        return setupPhase;
+    }
+    
+    /**
+     * Get the current setup round (1 or 2)
+     * @return setup round
+     */
+    public int getSetupRound() {
+        return setupRound;
+    }
+    
+    /**
+     * Complete a setup action and advance setup phase
+     * @return true if setup phase should continue, false if setup is complete
+     */
+    public boolean advanceSetupPhase() {
+        if (!setupPhase) return false;
+        
+        if (setupForward) {
+            // Forward order: 0, 1, 2, 3
+            setupPlayerIndex++;
+            if (setupPlayerIndex >= players.size()) {
+                if (setupRound == 1) {
+                    // Switch to round 2, reverse order
+                    setupRound = 2;
+                    setupForward = false;
+                    setupPlayerIndex = players.size() - 1;
+                } else {
+                    // Setup complete
+                    setupPhase = false;
+                    currentPlayerIndex = 0; // Start normal game with first player
+                    return false;
+                }
+            }
+        } else {
+            // Reverse order: 3, 2, 1, 0
+            setupPlayerIndex--;
+            if (setupPlayerIndex < 0) {
+                // Setup complete
+                setupPhase = false;
+                currentPlayerIndex = 0; // Start normal game with first player
+                return false;
+            }
+        }
+        
+        // Update current player index to setup player
+        currentPlayerIndex = setupPlayerIndex;
         return true;
     }
     

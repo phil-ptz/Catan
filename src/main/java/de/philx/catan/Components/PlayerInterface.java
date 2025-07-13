@@ -1,11 +1,12 @@
 package de.philx.catan.Components;
 
 import de.philx.catan.Controllers.GameController;
+import de.philx.catan.Utils.StyledButton;
 import de.philx.catan.Utils.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -14,69 +15,74 @@ public class PlayerInterface extends VBox {
 
     private final GameController gameController;
     private final Runnable onReturnToMenu;
+    private final Runnable onGameFieldRefreshNeeded;
     private final Label currentPlayerLabel;
     private final Label diceResultLabel;
     private final Label gameMessageLabel;
     private final Label resourcesLabel;
     private final Label buildingsLabel;
-    private Button diceButton;
-    private Button endTurnButton;
+    private StyledButton diceButton;
+    private StyledButton endTurnButton;
+    private VBox playerInfoCard;
+    private VBox gameStatusCard;
+    private VBox controlsCard;
     
     public PlayerInterface(GameController gameController, Runnable onReturnToMenu) {
+        this(gameController, onReturnToMenu, null);
+    }
+    
+    public PlayerInterface(GameController gameController, Runnable onReturnToMenu, Runnable onGameFieldRefreshNeeded) {
         this.gameController = gameController;
         this.onReturnToMenu = onReturnToMenu;
+        this.onGameFieldRefreshNeeded = onGameFieldRefreshNeeded;
         
-        this.setSpacing(10);
-        this.setPadding(new Insets(10));
-        this.setAlignment(Pos.CENTER_LEFT);
-        this.setPrefWidth(300);
+        this.setSpacing(15);
+        this.setPadding(new Insets(15));
+        this.setAlignment(Pos.TOP_LEFT);
+        this.setPrefWidth(320);
         
-        // Current player display
+        // Initialize labels
         currentPlayerLabel = new Label();
-        currentPlayerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        currentPlayerLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
         currentPlayerLabel.textProperty().bind(gameController.currentPlayerProperty());
         
-        // Dice result display
         diceResultLabel = new Label();
-        diceResultLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+        diceResultLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 16));
         diceResultLabel.textProperty().bind(gameController.diceResultProperty());
         
-        // Game message display
         gameMessageLabel = new Label();
-        gameMessageLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
+        gameMessageLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 12));
         gameMessageLabel.textProperty().bind(gameController.gameMessageProperty());
         gameMessageLabel.setWrapText(true);
         gameMessageLabel.setMaxWidth(280);
         
-        // Resources display
         resourcesLabel = new Label();
-        resourcesLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 11));
+        resourcesLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 11));
         resourcesLabel.setWrapText(true);
         resourcesLabel.setMaxWidth(280);
         
-        // Buildings display
         buildingsLabel = new Label();
-        buildingsLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 11));
+        buildingsLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 11));
         buildingsLabel.setWrapText(true);
         buildingsLabel.setMaxWidth(280);
         
-        // Create button grid
-        GridPane buttonGrid = createButtonGrid();
+        // Create card components
+        createPlayerInfoCard();
+        createGameStatusCard();
+        createControlsCard();
         
-        // Add all components
-        this.getChildren().addAll(
-            new Label("Aktueller Spieler:"),
-            currentPlayerLabel,
-            new Label("Würfelergebnis:"),
-            diceResultLabel,
-            new Label("Spielnachrichten:"),
-            gameMessageLabel,
-            new Label("Ressourcen:"),
-            resourcesLabel,
-            new Label("Gebäude:"),
-            buildingsLabel,
-            buttonGrid
-        );
+        // Add components with scroll support
+        ScrollPane scrollPane = new ScrollPane();
+        VBox content = new VBox(15);
+        content.getChildren().addAll(playerInfoCard, gameStatusCard, controlsCard);
+        scrollPane.setContent(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        
+        this.getChildren().add(scrollPane);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
         
         // Apply current theme when interface is created
         this.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -92,60 +98,105 @@ public class PlayerInterface extends VBox {
         startPeriodicUpdates();
     }
     
-    private GridPane createButtonGrid() {
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setAlignment(Pos.CENTER);
+    private void createPlayerInfoCard() {
+        playerInfoCard = new VBox(12);
         
-        // Column constraints
-        ColumnConstraints col1 = new ColumnConstraints();
-        ColumnConstraints col2 = new ColumnConstraints();
-        col1.setHgrow(Priority.ALWAYS);
-        col2.setHgrow(Priority.ALWAYS);
-        grid.getColumnConstraints().addAll(col1, col2);
+        // Card header
+        Label cardTitle = new Label("👤 Spieler Information");
+        cardTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
         
-        // Row constraints
-        RowConstraints row1 = new RowConstraints();
-        RowConstraints row2 = new RowConstraints();
-        RowConstraints row3 = new RowConstraints();
-        row1.setVgrow(Priority.ALWAYS);
-        row2.setVgrow(Priority.ALWAYS);
-        row3.setVgrow(Priority.ALWAYS);
-        grid.getRowConstraints().addAll(row1, row2, row3);
+        // Current player section
+        VBox currentPlayerSection = new VBox(6);
+        Label currentPlayerTitle = new Label("Aktueller Spieler:");
+        currentPlayerTitle.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 12));
+        currentPlayerSection.getChildren().addAll(currentPlayerTitle, currentPlayerLabel);
         
-        // Dice roll button
-        diceButton = new Button("Würfeln");
-        diceButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        diceButton.setOnAction(e -> handleDiceRoll());
-        grid.add(diceButton, 0, 0);
+        // Resources section
+        VBox resourcesSection = new VBox(6);
+        Label resourcesTitle = new Label("📦 Ressourcen:");
+        resourcesTitle.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 12));
+        resourcesSection.getChildren().addAll(resourcesTitle, resourcesLabel);
         
-        // End turn button
-        endTurnButton = new Button("Zug beenden");
-        endTurnButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        endTurnButton.setOnAction(e -> handleEndTurn());
-        grid.add(endTurnButton, 1, 0);
+        // Buildings section
+        VBox buildingsSection = new VBox(6);
+        Label buildingsTitle = new Label("🏠 Gebäude:");
+        buildingsTitle.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 12));
+        buildingsSection.getChildren().addAll(buildingsTitle, buildingsLabel);
         
-        // Trade button
-        Button tradeButton = new Button("Handeln");
-        tradeButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        tradeButton.setOnAction(e -> handleTrade());
-        grid.add(tradeButton, 0, 1);
-        
-        // Build button
-        Button buildButton = new Button("Bauen");
-        buildButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        buildButton.setOnAction(e -> handleBuild());
-        grid.add(buildButton, 1, 1);
-        
-        // Quit button
-        Button quitButton = new Button("Hauptmenü");
-        quitButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        quitButton.setOnAction(e -> handleQuit());
-        grid.add(quitButton, 0, 2, 2, 1); // Span 2 columns
-        
-        return grid;
+        playerInfoCard.getChildren().addAll(
+            cardTitle, currentPlayerSection, resourcesSection, buildingsSection
+        );
     }
+    
+    private void createGameStatusCard() {
+        gameStatusCard = new VBox(12);
+        
+        // Card header
+        Label cardTitle = new Label("🎮 Spielstatus");
+        cardTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        
+        // Dice result section
+        VBox diceSection = new VBox(6);
+        Label diceTitle = new Label("🎲 Letzter Würfelwurf:");
+        diceTitle.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 12));
+        diceSection.getChildren().addAll(diceTitle, diceResultLabel);
+        
+        // Game messages section
+        VBox messagesSection = new VBox(6);
+        Label messagesTitle = new Label("📢 Nachrichten:");
+        messagesTitle.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 12));
+        messagesSection.getChildren().addAll(messagesTitle, gameMessageLabel);
+        
+        gameStatusCard.getChildren().addAll(cardTitle, diceSection, messagesSection);
+    }
+    
+    private void createControlsCard() {
+        controlsCard = new VBox(15);
+        
+        // Card header
+        Label cardTitle = new Label("⚙️ Spielsteuerung");
+        cardTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        
+        // Primary actions
+        VBox primaryActions = new VBox(10);
+        
+        diceButton = new StyledButton("🎲 Würfeln", StyledButton.ButtonType.PRIMARY);
+        diceButton.setPrefWidth(250);
+        diceButton.setOnAction(e -> handleDiceRoll());
+        
+        endTurnButton = new StyledButton("⏭️ Zug beenden", StyledButton.ButtonType.SUCCESS);
+        endTurnButton.setPrefWidth(250);
+        endTurnButton.setOnAction(e -> handleEndTurn());
+        
+        primaryActions.getChildren().addAll(diceButton, endTurnButton);
+        
+        // Secondary actions
+        VBox secondaryActions = new VBox(8);
+        
+        StyledButton tradeButton = new StyledButton("💰 Handeln", StyledButton.ButtonType.SECONDARY);
+        tradeButton.setPrefWidth(250);
+        tradeButton.setOnAction(e -> handleTrade());
+        
+        StyledButton buildButton = new StyledButton("🏗️ Bauen", StyledButton.ButtonType.SECONDARY);
+        buildButton.setPrefWidth(250);
+        buildButton.setOnAction(e -> handleBuild());
+        
+        secondaryActions.getChildren().addAll(tradeButton, buildButton);
+        
+        // Navigation
+        VBox navigationActions = new VBox(8);
+        
+        StyledButton quitButton = new StyledButton("🏠 Hauptmenü", StyledButton.ButtonType.DANGER);
+        quitButton.setPrefWidth(250);
+        quitButton.setOnAction(e -> handleQuit());
+        
+        navigationActions.getChildren().add(quitButton);
+        
+        controlsCard.getChildren().addAll(
+            cardTitle, primaryActions, secondaryActions, navigationActions
+        );
+    }
+    
     
     private void handleDiceRoll() {
         int result = gameController.rollDice();
@@ -160,13 +211,24 @@ public class PlayerInterface extends VBox {
     }
     
     private void handleTrade() {
-        // Placeholder for trading functionality
-        System.out.println("Handel - noch nicht implementiert");
+        // Show trading interface
+        TradingInterface.showTradingWindow(
+            gameController.getTradeController(), 
+            gameController.getPlayerManager(), 
+            gameController.getCurrentPlayer().getPlayerId(), 
+            this::updateDisplays
+        );
     }
     
     private void handleBuild() {
-        // Placeholder for building functionality
-        System.out.println("Bauen - noch nicht implementiert");
+        // Show enhanced building interface with game field refresh callback
+        Runnable refreshCallback = () -> {
+            updateDisplays();
+            if (onGameFieldRefreshNeeded != null) {
+                onGameFieldRefreshNeeded.run();
+            }
+        };
+        BuildingInterface.showBuildingWindow(gameController, refreshCallback);
     }
     
     private void handleQuit() {
@@ -195,28 +257,59 @@ public class PlayerInterface extends VBox {
     }
     
     /**
-     * Apply the current theme to all labels in the PlayerInterface
+     * Apply the current theme to all components in the PlayerInterface
      */
     public void applyCurrentTheme() {
         ThemeManager themeManager = ThemeManager.getInstance();
-        String textColor = themeManager.isDarkMode() ? "#ffffff" : "#000000";
         
-        // Apply text color to all labels
+        // Apply card styling to each card
+        if (playerInfoCard != null) {
+            playerInfoCard.setStyle(themeManager.getCardStyle());
+        }
+        if (gameStatusCard != null) {
+            gameStatusCard.setStyle(themeManager.getCardStyle());
+        }
+        if (controlsCard != null) {
+            controlsCard.setStyle(themeManager.getCardStyle());
+        }
+        
+        // Update text colors for dynamic labels
+        String textColor = themeManager.getTextColor();
+        String secondaryTextColor = themeManager.getSecondaryTextColor();
+        
         currentPlayerLabel.setStyle("-fx-text-fill: " + textColor + ";");
         diceResultLabel.setStyle("-fx-text-fill: " + textColor + ";");
-        gameMessageLabel.setStyle("-fx-text-fill: " + textColor + ";");
+        gameMessageLabel.setStyle("-fx-text-fill: " + secondaryTextColor + ";");
         resourcesLabel.setStyle("-fx-text-fill: " + textColor + ";");
         buildingsLabel.setStyle("-fx-text-fill: " + textColor + ";");
         
-        // Apply text color to all static labels
-        this.getChildren().forEach(node -> {
-            if (node instanceof Label && 
-                (((Label) node).getText().equals("Aktueller Spieler:") ||
-                 ((Label) node).getText().equals("Würfelergebnis:") ||
-                 ((Label) node).getText().equals("Spielnachrichten:") ||
-                 ((Label) node).getText().equals("Ressourcen:") ||
-                 ((Label) node).getText().equals("Gebäude:"))) {
-                node.setStyle("-fx-text-fill: " + textColor + ";");
+        // Recursively update all labels in the cards
+        updateLabelsInCard(playerInfoCard, textColor, secondaryTextColor);
+        updateLabelsInCard(gameStatusCard, textColor, secondaryTextColor);
+        updateLabelsInCard(controlsCard, textColor, secondaryTextColor);
+    }
+    
+    private void updateLabelsInCard(VBox card, String textColor, String secondaryTextColor) {
+        if (card == null) return;
+        
+        card.getChildren().forEach(node -> {
+            if (node instanceof Label) {
+                Label label = (Label) node;
+                String labelText = label.getText();
+                
+                // Apply different colors based on label type
+                if (labelText.contains("👤") || labelText.contains("🎮") || labelText.contains("⚙️")) {
+                    // Card titles - use accent color
+                    label.setStyle("-fx-text-fill: " + ThemeManager.ACCENT_COLOR + ";");
+                } else if (labelText.endsWith(":")) {
+                    // Section titles - use secondary color
+                    label.setStyle("-fx-text-fill: " + secondaryTextColor + ";");
+                } else {
+                    // Regular text - use primary text color
+                    label.setStyle("-fx-text-fill: " + textColor + ";");
+                }
+            } else if (node instanceof VBox) {
+                updateLabelsInCard((VBox) node, textColor, secondaryTextColor);
             }
         });
     }

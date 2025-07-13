@@ -22,6 +22,7 @@ public class GameController {
     
     private final GameField gameField;
     private final PlayerManager playerManager;
+    private final TradeController tradeController;
     private final Random diceRandom;
     
     // Observable properties for UI binding
@@ -32,10 +33,13 @@ public class GameController {
     // Game state
     private boolean waitingForRobberPlacement;
     private int lastDiceRoll;
-    
+    private String currentBuildingMode; // null, "road", "settlement", "city"
+    private boolean buildingModeActive;
+
     public GameController() {
         this.gameField = new GameField(50.0);
         this.playerManager = new PlayerManager();
+        this.tradeController = new TradeController(playerManager);
         this.diceRandom = new Random();
         
         // Initialize observable properties
@@ -45,6 +49,8 @@ public class GameController {
         
         this.waitingForRobberPlacement = false;
         this.lastDiceRoll = 0;
+        this.currentBuildingMode = null;
+        this.buildingModeActive = false;
         
         // Initialize test players for development
         initializeTestPlayers();
@@ -60,7 +66,11 @@ public class GameController {
             playerManager.addPlayer("Spieler 3", Player.PlayerColor.WHITE);
             playerManager.startGame();
             updateCurrentPlayerDisplay();
-            setGameMessage("Spiel gestartet! " + getCurrentPlayer().getName() + " ist am Zug.");
+            if (playerManager.isSetupPhase()) {
+                setGameMessage("Startphase! " + getCurrentPlayer().getName() + " platziere deine erste Siedlung und Straße.");
+            } else {
+                setGameMessage("Spiel gestartet! " + getCurrentPlayer().getName() + " ist am Zug.");
+            }
         } catch (Exception e) {
             setGameMessage("Fehler beim Spielstart: " + e.getMessage());
         }
@@ -73,6 +83,11 @@ public class GameController {
     public int rollDice() {
         if (!playerManager.isGameStarted()) {
             setGameMessage("Spiel ist noch nicht gestartet!");
+            return 0;
+        }
+        
+        if (playerManager.isSetupPhase()) {
+            setGameMessage("Während der Startphase wird nicht gewürfelt!");
             return 0;
         }
         
@@ -270,10 +285,13 @@ public class GameController {
             return false;
         }
         
-        // Check if player can afford a road
-        if (!currentPlayer.canBuildRoad()) {
-            setGameMessage("Nicht genügend Ressourcen für eine Straße!");
-            return false;
+        // In setup phase, don't check resources
+        if (!playerManager.isSetupPhase()) {
+            // Check if player can afford a road
+            if (!currentPlayer.canBuildRoad()) {
+                setGameMessage("Nicht genügend Ressourcen für eine Straße!");
+                return false;
+            }
         }
         
         // Check if placement is valid
@@ -289,17 +307,37 @@ public class GameController {
             return false;
         }
         
-        // Pay resources and place road
-        if (currentPlayer.buildRoad()) {
-            Street road = new Street(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
-            edge.setRoad(road);
-            
-            // Update longest road calculations
-            boolean longestRoadChanged = playerManager.updateLongestRoad(gameField.getEdges());
-            
-            setGameMessage("Straße gebaut!" + 
-                (longestRoadChanged ? " Längste Handelsstraße hat sich geändert!" : ""));
-            
+        // In setup phase, place road without paying resources
+        boolean success;
+        if (playerManager.isSetupPhase()) {
+            // Create road without cost during setup
+            success = currentPlayer.buildRoadSetup();
+            if (success) {
+                Street road = new Street(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+                edge.setRoad(road);
+                setGameMessage("Straße in der Startphase platziert!");
+                
+                // Advance setup phase
+                if (!playerManager.advanceSetupPhase()) {
+                    setGameMessage("Startphase beendet! Das normale Spiel beginnt.");
+                }
+            }
+        } else {
+            // Pay resources and place road
+            success = currentPlayer.buildRoad();
+            if (success) {
+                Street road = new Street(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+                edge.setRoad(road);
+                
+                // Update longest road calculations
+                boolean longestRoadChanged = playerManager.updateLongestRoad(gameField.getEdges());
+                
+                setGameMessage("Straße gebaut!" + 
+                    (longestRoadChanged ? " Längste Handelsstraße hat sich geändert!" : ""));
+            }
+        }
+        
+        if (success) {
             // Check for winner (in case longest road gave winning points)
             Player winner = playerManager.getWinner();
             if (winner != null) {
@@ -324,10 +362,13 @@ public class GameController {
             return false;
         }
         
-        // Check if player can afford a settlement
-        if (!currentPlayer.canBuildSettlement()) {
-            setGameMessage("Nicht genügend Ressourcen für eine Siedlung!");
-            return false;
+        // In setup phase, don't check resources
+        if (!playerManager.isSetupPhase()) {
+            // Check if player can afford a settlement
+            if (!currentPlayer.canBuildSettlement()) {
+                setGameMessage("Nicht genügend Ressourcen für eine Siedlung!");
+                return false;
+            }
         }
         
         // Check if placement is valid
@@ -343,13 +384,32 @@ public class GameController {
             return false;
         }
         
-        // Pay resources and place settlement
-        if (currentPlayer.buildSettlement()) {
-            Settlement settlement = new Settlement(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
-            node.setBuilding(settlement);
-            
-            setGameMessage("Siedlung gebaut!");
-            
+        // In setup phase, place settlement without paying resources
+        boolean success;
+        if (playerManager.isSetupPhase()) {
+            // Create settlement without cost during setup
+            success = currentPlayer.buildSettlementSetup();
+            if (success) {
+                Settlement settlement = new Settlement(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+                node.setBuilding(settlement);
+                setGameMessage("Siedlung in der Startphase platziert!");
+                
+                // Advance setup phase
+                if (!playerManager.advanceSetupPhase()) {
+                    setGameMessage("Startphase beendet! Das normale Spiel beginnt.");
+                }
+            }
+        } else {
+            // Pay resources and place settlement
+            success = currentPlayer.buildSettlement();
+            if (success) {
+                Settlement settlement = new Settlement(currentPlayer.getPlayerId(), currentPlayer.getColor().charAt(0));
+                node.setBuilding(settlement);
+                setGameMessage("Siedlung gebaut!");
+            }
+        }
+        
+        if (success) {
             // Check for winner
             Player winner = playerManager.getWinner();
             if (winner != null) {
@@ -503,5 +563,65 @@ public class GameController {
             player.getAvailableCities(),
             player.getVictoryPoints(),
             longestRoadStatus);
+    }
+    
+    // === Enhanced Building and Trading Methods ===
+    
+    /**
+     * Start building mode for placing buildings
+     * @param buildingType The type of building to place ("road", "settlement", "city")
+     */
+    public void startBuildingMode(String buildingType) {
+        this.currentBuildingMode = buildingType;
+        this.buildingModeActive = true;
+        setGameMessage("Klicke auf eine gültige Position um " + getBuildingTypeName(buildingType) + " zu platzieren.");
+    }
+    
+    /**
+     * Stop building mode
+     */
+    public void stopBuildingMode() {
+        this.currentBuildingMode = null;
+        this.buildingModeActive = false;
+        setGameMessage(getCurrentPlayer().getName() + " ist am Zug.");
+    }
+    
+    /**
+     * Check if currently in building mode
+     * @return true if building mode is active
+     */
+    public boolean isBuildingModeActive() {
+        return buildingModeActive;
+    }
+    
+    /**
+     * Get the current building mode
+     * @return current building mode or null
+     */
+    public String getCurrentBuildingMode() {
+        return currentBuildingMode;
+    }
+    
+    /**
+     * Get the German name for a building type
+     * @param buildingType The building type identifier
+     * @return German name for the building type
+     */
+    private String getBuildingTypeName(String buildingType) {
+        switch (buildingType) {
+            case "road": return "eine Straße";
+            case "settlement": return "eine Siedlung";
+            case "city": return "eine Stadt";
+            case "setup_road": return "eine Straße";
+            default: return "ein Gebäude";
+        }
+    }
+    
+    /**
+     * Get the trade controller for handling trades
+     * @return The trade controller instance
+     */
+    public TradeController getTradeController() {
+        return tradeController;
     }
 }
