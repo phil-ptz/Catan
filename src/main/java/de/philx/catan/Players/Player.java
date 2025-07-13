@@ -2,11 +2,11 @@ package de.philx.catan.Players;
 
 import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.Node;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,6 +40,10 @@ public class Player {
     // Placed buildings for victory point calculation
     private int placedSettlements;
     private int placedCities;
+    
+    // Setup phase tracking
+    private int setupSettlementsPlaced;
+    private int setupRoadsPlaced;
     
     // Victory points
     private int victoryPoints;
@@ -103,6 +107,10 @@ public class Player {
         // Initialize placed buildings
         this.placedSettlements = 0;
         this.placedCities = 0;
+        
+        // Initialize setup phase counters
+        this.setupSettlementsPlaced = 0;
+        this.setupRoadsPlaced = 0;
         
         // Initialize victory points
         this.victoryPoints = 0;
@@ -231,9 +239,12 @@ public class Player {
      * @return true if road was built successfully
      */
     public boolean buildRoadSetup() {
+        // Check if we've already placed 2 roads in setup phase
+        if (setupRoadsPlaced >= 2) return false;
         if (availableRoads <= 0) return false;
         
         availableRoads--;
+        setupRoadsPlaced++;
         calculateVictoryPoints();
         return true;
     }
@@ -283,10 +294,13 @@ public class Player {
      * @return true if settlement was built successfully
      */
     public boolean buildSettlementSetup() {
+        // Check if we've already placed 2 settlements in setup phase
+        if (setupSettlementsPlaced >= 2) return false;
         if (availableSettlements <= 0) return false;
         
         availableSettlements--;
         placedSettlements++;
+        setupSettlementsPlaced++;
         calculateVictoryPoints();
         return true;
     }
@@ -545,6 +559,30 @@ public class Player {
      */
     public Map<ResourceType, Integer> getResourceInventory() {
         return new HashMap<>(resourceInventory);
+    }
+    
+    /**
+     * Get the number of settlements placed during setup phase
+     * @return number of setup settlements placed
+     */
+    public int getSetupSettlementsPlaced() {
+        return setupSettlementsPlaced;
+    }
+    
+    /**
+     * Get the number of roads placed during setup phase
+     * @return number of setup roads placed
+     */
+    public int getSetupRoadsPlaced() {
+        return setupRoadsPlaced;
+    }
+    
+    /**
+     * Check if player has completed their setup phase (2 settlements + 2 roads)
+     * @return true if setup is complete
+     */
+    public boolean isSetupComplete() {
+        return setupSettlementsPlaced >= 2 && setupRoadsPlaced >= 2;
     }
     
     /**

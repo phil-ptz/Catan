@@ -80,8 +80,7 @@ public class GameController {
             updateCurrentPlayerDisplay();
             Player currentPlayer = playerManager.getCurrentPlayer();
             setGameMessage("🏗️ AUFBAUPHASE STARTET! Jeder Spieler platziert 2 Siedlungen und 2 Straßen kostenlos.\n" +
-                          "RUNDE 1: " + currentPlayer.getName() + 
-                          " (" + currentPlayer.getColorDisplayName() + ") platziere deine erste Siedlung!");
+                          "RUNDE 1: (" + currentPlayer.getColorDisplayName() + ") platziere deine erste Siedlung!");
         } catch (Exception e) {
             setGameMessage("Fehler beim Spielstart: " + e.getMessage());
         }
@@ -114,13 +113,12 @@ public class GameController {
         // Place settlement for free during setup
         Settlement settlement = new Settlement(currentPlayer.getPlayerId(), currentPlayer.getColorDisplayName().charAt(0));
         node.setBuilding(settlement);
-        currentPlayer.placeSettlement(); // This updates the count but doesn't charge resources
+        currentPlayer.buildSettlementSetup(); // Use setup method that doesn't charge resources
         
         // Track the settlement node for road validation
         lastPlacedSettlementNodeId = nodeId;
         
-        setGameMessage("✅ Siedlung platziert! " + currentPlayer.getName() + 
-                      " (" + currentPlayer.getColorDisplayName() + ") platziere jetzt deine dazugehörige Straße!");
+        setGameMessage("✅ Siedlung platziert! (" + currentPlayer.getColorDisplayName() + ") platziere jetzt deine dazugehörige Straße!");
         startBuildingMode(BuildMode.SETUP_ROAD);
         
         return true;
@@ -154,7 +152,7 @@ public class GameController {
         // Place road for free during setup
         Street road = new Street(currentPlayer.getPlayerId(), currentPlayer.getColorDisplayName().charAt(0));
         edge.setRoad(road);
-        currentPlayer.placeRoad(); // This updates the count but doesn't charge resources
+        currentPlayer.buildRoadSetup(); // Use setup method that doesn't charge resources
         
         // Give resources for second settlement
         if (playerManager.getSetupRound() == 2) {
@@ -173,7 +171,7 @@ public class GameController {
             String roundInfo = playerManager.getSetupRound() == 1 ? "(alle Spieler in Reihenfolge)" : "(alle Spieler in Rückwärts-Reihenfolge)";
             
             setGameMessage("🏗️ AUFBAUPHASE " + phaseText + " " + roundInfo + ":\n" + 
-                          nextPlayer.getName() + " (" + nextPlayer.getColorDisplayName() + ") platziere deine " + 
+                          "(" + nextPlayer.getColorDisplayName() + ") platziere deine " + 
                           buildingCount + " Siedlung!");
             updateCurrentPlayerDisplay();
         }
@@ -226,8 +224,7 @@ public class GameController {
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer != null) {
             setGameMessage("🎉 AUFBAUPHASE BEENDET! Alle Spieler haben 2 Siedlungen und 2 Straßen platziert.\n" +
-                          "Das normale Spiel beginnt: " + currentPlayer.getName() + 
-                          " (" + currentPlayer.getColorDisplayName() + ") würfle!");
+                          "Das normale Spiel beginnt: (" + currentPlayer.getColorDisplayName() + ") würfle!");
         } else {
             setGameMessage("🎉 AUFBAUPHASE BEENDET! Alle Spieler haben 2 Siedlungen und 2 Straßen platziert.\n" +
                           "Das normale Spiel beginnt!");
@@ -620,7 +617,7 @@ public class GameController {
         this.buildingModeActive = false;
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer != null) {
-            setGameMessage(currentPlayer.getName() + " ist am Zug.");
+            setGameMessage("(" + currentPlayer.getColorDisplayName() + ") ist am Zug.");
         } else {
             setGameMessage("Spiel ist bereit.");
         }
@@ -733,7 +730,7 @@ public class GameController {
         
         // Check if player has already rolled dice this turn
         if (currentPlayer.hasRolledDice()) {
-            setGameMessage(currentPlayer.getName() + " hat bereits gewürfelt! Beende deinen Zug.");
+            setGameMessage("(" + currentPlayer.getColorDisplayName() + ") hat bereits gewürfelt! Beende deinen Zug.");
             return lastDiceRoll;
         }
         
@@ -765,7 +762,7 @@ public class GameController {
         waitingForRobberPlacement = true;
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer != null) {
-            setGameMessage("Würfel 7! " + currentPlayer.getName() + " muss den Räuber bewegen. Klicke auf ein Feld!");
+            setGameMessage("Würfel 7! (" + currentPlayer.getColorDisplayName() + ") muss den Räuber bewegen. Klicke auf ein Feld!");
         } else {
             setGameMessage("Würfel 7! Der Räuber muss bewegt werden. Klicke auf ein Feld!");
         }
@@ -818,7 +815,7 @@ public class GameController {
         
         Player nextPlayer = playerManager.nextTurn();
         updateCurrentPlayerDisplay();
-        setGameMessage(nextPlayer.getName() + " ist jetzt am Zug.");
+        setGameMessage("(" + nextPlayer.getColorDisplayName() + ") ist jetzt am Zug.");
         
         // Clear dice result for new turn
         diceResultProperty.set("");
@@ -837,11 +834,11 @@ public class GameController {
         if (playerManager.isSetupPhase()) {
             Player setupPlayer = getCurrentSetupPlayer();
             String phase = playerManager.getSetupRound() == 1 ? "Aufbauphase 1/2" : "Aufbauphase 2/2";
-            currentPlayerProperty.set("🏗️ " + phase + " - " + setupPlayer.getName() + " (" + setupPlayer.getColorDisplayName() + ") ist dran");
+            currentPlayerProperty.set("🏗️ " + phase + " - (" + setupPlayer.getColorDisplayName() + ") ist dran");
         } else {
             Player currentPlayer = getCurrentPlayer();
             if (currentPlayer != null) {
-                currentPlayerProperty.set("🎮 " + currentPlayer.getName() + " (" + currentPlayer.getColorDisplayName() + ") ist am Zug");
+                currentPlayerProperty.set("🎮 (" + currentPlayer.getColorDisplayName() + ") ist am Zug");
             } else {
                 currentPlayerProperty.set("Kein Spieler");
             }
