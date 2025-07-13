@@ -1,8 +1,8 @@
 package de.philx.catan.GameField;
 
+import de.philx.catan.GamePieces.City;
 import de.philx.catan.GamePieces.GamePiece;
 import de.philx.catan.GamePieces.Settlement;
-import de.philx.catan.GamePieces.City;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Group;
@@ -200,48 +200,6 @@ public class Node {
         Group group = new Group(circle);
         group.setUserData(this); // Store reference to this node
 
-        return group;
-    }
-
-    /**
-     * Creates a visual representation of this node
-     * @param showAsClickable Whether to show as a clickable placement option
-     * @return Group containing the visual elements
-     */
-    public Group createVisualGroup(boolean showAsClickable) {
-        Group group = new Group();
-        
-        // Create circle for node
-        Circle nodeCircle = new Circle(x, y, showAsClickable ? 8 : 5);
-        
-        if (hasBuilding()) {
-            // Show existing building
-            if (hasSettlement()) {
-                nodeCircle.setFill(getPlayerColorAsJavaFXColor(building.getColor()));
-                nodeCircle.setStroke(Color.BLACK);
-                nodeCircle.setStrokeWidth(2);
-            } else if (hasCity()) {
-                nodeCircle.setFill(getPlayerColorAsJavaFXColor(building.getColor()));
-                nodeCircle.setStroke(Color.BLACK);
-                nodeCircle.setStrokeWidth(3);
-                nodeCircle.setRadius(showAsClickable ? 10 : 7);
-            }
-        } else if (showAsClickable) {
-            // Show as placement option
-            nodeCircle.setFill(Color.LIGHTGREEN);
-            nodeCircle.setOpacity(0.7);
-            nodeCircle.setStroke(Color.DARKGREEN);
-            nodeCircle.setStrokeWidth(2);
-            
-            // Add ID for click handling
-            nodeCircle.setUserData("node_" + id);
-        } else {
-            // Show as normal node
-            nodeCircle.setFill(Color.LIGHTGRAY);
-            nodeCircle.setOpacity(0.3);
-        }
-        
-        group.getChildren().add(nodeCircle);
         return group;
     }
 

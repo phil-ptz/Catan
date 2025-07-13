@@ -133,8 +133,8 @@ public class GameLegend extends VBox {
             
             // Terrain name and resource
             String resourceText = terrain == TerrainType.DESERT ? 
-                terrain.name() + " (Keine Produktion)" : 
-                terrain.name() + " → " + terrain.getResource();
+                terrain.getGermanName() + " (Keine Produktion)" : 
+                terrain.getGermanName() + " → " + terrain.getResource();
             Label terrainLabel = new Label(resourceText);
             terrainLabel.setFont(Font.font("Segoe UI", 11));
             

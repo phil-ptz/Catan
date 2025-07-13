@@ -1,10 +1,9 @@
 package de.philx.catan.GameField;
 
+import static java.lang.Math.sqrt;
+import java.util.*;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
-import java.util.*;
-
-import static java.lang.Math.sqrt;
 
 /**
  * Complete implementation of the CATAN game board system
@@ -306,45 +305,6 @@ public class GameField {
             group.getChildren().add(hex.createVisualGroup());
         }
         
-<<<<<<< HEAD
-        // Add edges (roads) - show all edges
-        for (Edge edge : edges) {
-            group.getChildren().add(edge.createVisualGroup(false));
-        }
-        
-        // Add nodes (settlement/city spots) - show all nodes
-        for (Node node : nodes) {
-            group.getChildren().add(node.createVisualGroup(false));
-        }
-        
-        return group;
-    }
-    
-    /**
-     * Creates a JavaFX Group for visualization with building placement mode
-     * @param showPlacementOptions Whether to show clickable placement options
-     * @param buildingType The type of building to place (null for normal view)
-     * @return Group containing all visual elements
-     */
-    public Group toGroup(boolean showPlacementOptions, String buildingType) {
-        Group group = new Group();
-        
-        // Add all hexagons with their visual elements
-        for (Hexagon hex : hexagons) {
-            group.getChildren().add(hex.createVisualGroup());
-        }
-        
-        // Add edges (roads)
-        boolean showEdgeOptions = showPlacementOptions && "road".equals(buildingType);
-        for (Edge edge : edges) {
-            group.getChildren().add(edge.createVisualGroup(showEdgeOptions));
-        }
-        
-        // Add nodes (settlement/city spots)
-        boolean showNodeOptions = showPlacementOptions && ("settlement".equals(buildingType) || "city".equals(buildingType));
-        for (Node node : nodes) {
-            group.getChildren().add(node.createVisualGroup(showNodeOptions));
-=======
         // Add edges (roads) as lines
         for (Edge edge : edges) {
             group.getChildren().add(edge.createVisualGroup(showPlacementOptions && "road".equals(buildingType)));
@@ -353,7 +313,6 @@ public class GameField {
         // Add nodes (settlement/city spots) as small circles
         for (Node node : nodes) {
             group.getChildren().add(node.createVisualGroup(showPlacementOptions && ("settlement".equals(buildingType) || "city".equals(buildingType))));
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         }
         
         return group;

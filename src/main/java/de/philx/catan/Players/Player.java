@@ -227,7 +227,6 @@ public class Player {
     }
     
     /**
-<<<<<<< HEAD
      * Build a road during setup phase (no resource cost)
      * @return true if road was built successfully
      */
@@ -236,14 +235,16 @@ public class Player {
         
         availableRoads--;
         calculateVictoryPoints();
-=======
+        return true;
+    }
+    
+    /**
      * Place a road without consuming resources (for setup phase)
      * @return true if road was placed successfully
      */
     public boolean placeRoad() {
         if (availableRoads <= 0) return false;
         availableRoads--;
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         return true;
     }
     
@@ -278,20 +279,24 @@ public class Player {
     }
     
     /**
-<<<<<<< HEAD
      * Build a settlement during setup phase (no resource cost)
      * @return true if settlement was built successfully
      */
     public boolean buildSettlementSetup() {
         if (availableSettlements <= 0) return false;
         
-=======
+        availableSettlements--;
+        placedSettlements++;
+        calculateVictoryPoints();
+        return true;
+    }
+    
+    /**
      * Place a settlement without consuming resources (for setup phase)
      * @return true if settlement was placed successfully
      */
     public boolean placeSettlement() {
         if (availableSettlements <= 0) return false;
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         availableSettlements--;
         placedSettlements++;
         calculateVictoryPoints();

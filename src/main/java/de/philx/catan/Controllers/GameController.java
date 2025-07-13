@@ -1,18 +1,18 @@
 package de.philx.catan.Controllers;
 
+import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.GameField;
 import de.philx.catan.GameField.Hexagon;
-import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.Node;
-import de.philx.catan.GamePieces.Street;
-import de.philx.catan.GamePieces.Settlement;
 import de.philx.catan.GamePieces.City;
+import de.philx.catan.GamePieces.Settlement;
+import de.philx.catan.GamePieces.Street;
 import de.philx.catan.Players.Player;
 import de.philx.catan.Players.PlayerManager;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import java.util.List;
 import java.util.Random;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  * Main game controller that manages the game state and coordinates between
@@ -35,8 +35,6 @@ public class GameController {
     private int lastDiceRoll;
     private String currentBuildingMode; // null, "road", "settlement", "city"
     private boolean buildingModeActive;
-<<<<<<< HEAD
-=======
     
     // Setup phase management
     private boolean inSetupPhase;
@@ -44,7 +42,6 @@ public class GameController {
     private int setupPlayerIndex; // Current player in setup
     private boolean setupGoingReverse; // Direction for setup
     private int lastPlacedSettlementNodeId; // Track last settlement for road validation
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
 
     public GameController() {
         this.gameField = new GameField(50.0);
@@ -82,18 +79,9 @@ public class GameController {
             playerManager.addPlayer("Spieler 2", Player.PlayerColor.BLUE);
             playerManager.addPlayer("Spieler 3", Player.PlayerColor.WHITE);
             playerManager.startGame();
-<<<<<<< HEAD
-            updateCurrentPlayerDisplay();
-            if (playerManager.isSetupPhase()) {
-                setGameMessage("Startphase! " + getCurrentPlayer().getName() + " platziere deine erste Siedlung und Straße.");
-            } else {
-                setGameMessage("Spiel gestartet! " + getCurrentPlayer().getName() + " ist am Zug.");
-            }
-=======
             
             // Start setup phase
             startSetupPhase();
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         } catch (Exception e) {
             setGameMessage("Fehler beim Spielstart: " + e.getMessage());
         }
@@ -108,46 +96,9 @@ public class GameController {
         setupPlayerIndex = 0;
         setupGoingReverse = false;
         
-<<<<<<< HEAD
-        if (playerManager.isSetupPhase()) {
-            setGameMessage("Während der Startphase wird nicht gewürfelt!");
-            return 0;
-        }
-        
-        if (waitingForRobberPlacement) {
-            setGameMessage("Bitte platziere zuerst den Räuber!");
-            return lastDiceRoll;
-        }
-        
-        Player currentPlayer = getCurrentPlayer();
-        if (currentPlayer == null) {
-            setGameMessage("Kein aktiver Spieler!");
-            return 0;
-        }
-        
-        // Check if player has already rolled dice this turn
-        if (currentPlayer.hasRolledDice()) {
-            setGameMessage(currentPlayer.getName() + " hat bereits gewürfelt! Beende deinen Zug.");
-            return lastDiceRoll;
-        }
-        
-        // Roll two dice
-        int dice1 = diceRandom.nextInt(6) + 1;
-        int dice2 = diceRandom.nextInt(6) + 1;
-        lastDiceRoll = dice1 + dice2;
-        
-        // Mark that player has rolled dice this turn
-        currentPlayer.setHasRolledDice(true);
-        
-        // Update dice display
-        diceResultProperty.set(String.format("Würfel: %d + %d = %d", dice1, dice2, lastDiceRoll));
-        
-        // Handle dice result
-        if (lastDiceRoll == 7) {
-            handleRobberActivation();
-=======
-        setGameMessage("Aufbauphase: " + getCurrentSetupPlayer().getName() + 
-                      " platziere deine erste Siedlung (kostenlos)!");
+        Player currentPlayer = getCurrentSetupPlayer();
+        setGameMessage("🏗️ AUFBAUPHASE RUNDE 1: " + currentPlayer.getName() + 
+                      " (" + currentPlayer.getColor() + ") platziere deine erste Siedlung (kostenlos)!");
         updateCurrentPlayerDisplay();
     }
     
@@ -158,7 +109,6 @@ public class GameController {
         List<Player> players = playerManager.getAllPlayers();
         if (setupGoingReverse) {
             return players.get(players.size() - 1 - setupPlayerIndex);
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         } else {
             return players.get(setupPlayerIndex);
         }
@@ -189,7 +139,8 @@ public class GameController {
         // Track the settlement node for road validation
         lastPlacedSettlementNodeId = nodeId;
         
-        setGameMessage(currentPlayer.getName() + " platziere jetzt deine Straße (kostenlos)!");
+        setGameMessage("✅ Siedlung platziert! " + currentPlayer.getName() + 
+                      " (" + currentPlayer.getColor() + ") platziere jetzt deine Straße (kostenlos)!");
         startBuildingMode("setup_road");
         
         return true;
@@ -296,8 +247,9 @@ public class GameController {
         }
         
         Player nextPlayer = getCurrentSetupPlayer();
-        setGameMessage("Aufbauphase Runde " + setupRound + ": " + nextPlayer.getName() + 
-                      " platziere deine Siedlung (kostenlos)!");
+        String phaseText = setupRound == 1 ? "RUNDE 1" : "RUNDE 2";
+        setGameMessage("🏗️ AUFBAUPHASE " + phaseText + ": " + nextPlayer.getName() + 
+                      " (" + nextPlayer.getColor() + ") platziere deine Siedlung (kostenlos)!");
         updateCurrentPlayerDisplay();
     }
     
@@ -311,7 +263,8 @@ public class GameController {
         playerManager.setCurrentPlayerIndex(0);
         
         updateCurrentPlayerDisplay();
-        setGameMessage("Aufbauphase beendet! " + getCurrentPlayer().getName() + " beginnt das Spiel. Würfle!");
+        setGameMessage("🎉 Aufbauphase beendet! " + getCurrentPlayer().getName() + 
+                      " (" + getCurrentPlayer().getColor() + ") beginnt das Spiel. Würfle!");
     }
     
     // === Building Methods ===
@@ -843,11 +796,12 @@ public class GameController {
     private void updateCurrentPlayerDisplay() {
         if (inSetupPhase) {
             Player setupPlayer = getCurrentSetupPlayer();
-            currentPlayerProperty.set(setupPlayer.getName() + " (" + setupPlayer.getColor() + ") - Aufbauphase");
+            String phase = setupRound == 1 ? "Aufbauphase 1/2" : "Aufbauphase 2/2";
+            currentPlayerProperty.set("🏗️ " + phase + " - " + setupPlayer.getName() + " (" + setupPlayer.getColor() + ") ist dran");
         } else {
             Player currentPlayer = getCurrentPlayer();
             if (currentPlayer != null) {
-                currentPlayerProperty.set(currentPlayer.getName() + " (" + currentPlayer.getColor() + ")");
+                currentPlayerProperty.set("🎮 " + currentPlayer.getName() + " (" + currentPlayer.getColor() + ") ist am Zug");
             } else {
                 currentPlayerProperty.set("Kein Spieler");
             }
@@ -928,56 +882,6 @@ public class GameController {
     }
     
     // === Enhanced Building and Trading Methods ===
-    
-    /**
-     * Start building mode for placing buildings
-     * @param buildingType The type of building to place ("road", "settlement", "city")
-     */
-    public void startBuildingMode(String buildingType) {
-        this.currentBuildingMode = buildingType;
-        this.buildingModeActive = true;
-        setGameMessage("Klicke auf eine gültige Position um " + getBuildingTypeName(buildingType) + " zu platzieren.");
-    }
-    
-    /**
-     * Stop building mode
-     */
-    public void stopBuildingMode() {
-        this.currentBuildingMode = null;
-        this.buildingModeActive = false;
-        setGameMessage(getCurrentPlayer().getName() + " ist am Zug.");
-    }
-    
-    /**
-     * Check if currently in building mode
-     * @return true if building mode is active
-     */
-    public boolean isBuildingModeActive() {
-        return buildingModeActive;
-    }
-    
-    /**
-     * Get the current building mode
-     * @return current building mode or null
-     */
-    public String getCurrentBuildingMode() {
-        return currentBuildingMode;
-    }
-    
-    /**
-     * Get the German name for a building type
-     * @param buildingType The building type identifier
-     * @return German name for the building type
-     */
-    private String getBuildingTypeName(String buildingType) {
-        switch (buildingType) {
-            case "road": return "eine Straße";
-            case "settlement": return "eine Siedlung";
-            case "city": return "eine Stadt";
-            case "setup_road": return "eine Straße";
-            default: return "ein Gebäude";
-        }
-    }
     
     /**
      * Get the trade controller for handling trades

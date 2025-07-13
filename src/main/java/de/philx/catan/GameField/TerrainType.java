@@ -6,12 +6,12 @@ import javafx.scene.paint.Color;
  * Enum representing the different terrain types in CATAN
  */
 public enum TerrainType {
-    FOREST(Color.DARKGREEN, "Wood"),
-    PASTURE(Color.LIGHTGREEN, "Wool"),
-    FIELDS(Color.GOLD, "Grain"),
-    HILLS(Color.SANDYBROWN, "Clay"),
-    MOUNTAINS(Color.GRAY, "Ore"),
-    DESERT(Color.LIGHTYELLOW, "None");
+    FOREST(Color.DARKGREEN, "Holz"),
+    PASTURE(Color.LIGHTGREEN, "Wolle"),
+    FIELDS(Color.GOLD, "Getreide"),
+    HILLS(Color.SANDYBROWN, "Lehm"),
+    MOUNTAINS(Color.GRAY, "Erz"),
+    DESERT(Color.LIGHTYELLOW, "Keine");
 
     private final Color color;
     private final String resource;
@@ -27,6 +27,22 @@ public enum TerrainType {
 
     public String getResource() {
         return resource;
+    }
+
+    /**
+     * Get the German name for this terrain type
+     * @return German name for the terrain
+     */
+    public String getGermanName() {
+        switch (this) {
+            case FOREST: return "Wald";
+            case PASTURE: return "Weide";
+            case FIELDS: return "Acker";
+            case HILLS: return "Hügel";
+            case MOUNTAINS: return "Gebirge";
+            case DESERT: return "Wüste";
+            default: return this.name();
+        }
     }
 
     /**

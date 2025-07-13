@@ -15,11 +15,7 @@ public class PlayerInterface extends VBox {
 
     private final GameController gameController;
     private final Runnable onReturnToMenu;
-<<<<<<< HEAD
-    private final Runnable onGameFieldRefreshNeeded;
-=======
     private final Runnable onGameStateChanged; // New callback for game state changes
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     private final Label currentPlayerLabel;
     private final Label diceResultLabel;
     private final Label gameMessageLabel;
@@ -31,21 +27,10 @@ public class PlayerInterface extends VBox {
     private VBox gameStatusCard;
     private VBox controlsCard;
     
-<<<<<<< HEAD
-    public PlayerInterface(GameController gameController, Runnable onReturnToMenu) {
-        this(gameController, onReturnToMenu, null);
-    }
-    
-    public PlayerInterface(GameController gameController, Runnable onReturnToMenu, Runnable onGameFieldRefreshNeeded) {
-        this.gameController = gameController;
-        this.onReturnToMenu = onReturnToMenu;
-        this.onGameFieldRefreshNeeded = onGameFieldRefreshNeeded;
-=======
     public PlayerInterface(GameController gameController, Runnable onReturnToMenu, Runnable onGameStateChanged) {
         this.gameController = gameController;
         this.onReturnToMenu = onReturnToMenu;
         this.onGameStateChanged = onGameStateChanged;
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         
         this.setSpacing(15);
         this.setPadding(new Insets(15));
@@ -232,16 +217,6 @@ public class PlayerInterface extends VBox {
     }
     
     private void handleBuild() {
-<<<<<<< HEAD
-        // Show enhanced building interface with game field refresh callback
-        Runnable refreshCallback = () -> {
-            updateDisplays();
-            if (onGameFieldRefreshNeeded != null) {
-                onGameFieldRefreshNeeded.run();
-            }
-        };
-        BuildingInterface.showBuildingWindow(gameController, refreshCallback);
-=======
         // Show building options dialog or cycle through building types
         showBuildingOptionsDialog();
     }
@@ -274,7 +249,6 @@ public class PlayerInterface extends VBox {
                 updateDisplays();
             }
         });
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     }
     
     private void handleQuit() {

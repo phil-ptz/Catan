@@ -3,9 +3,9 @@ package de.philx.catan.Screens;
 import de.philx.catan.Components.GameLegend;
 import de.philx.catan.Components.PlayerInterface;
 import de.philx.catan.Controllers.GameController;
+import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.GameField;
 import de.philx.catan.GameField.Node;
-import de.philx.catan.GameField.Edge;
 import de.philx.catan.Utils.ThemeManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
@@ -29,12 +29,8 @@ public class GameScreen extends HBox {
 
     public GameScreen(int width, int height, Runnable onReturnToMenu) {
         this.gameController = new GameController();
-<<<<<<< HEAD
         // Initialize with visual elements for nodes and edges
         this.gameFieldGroup = gameController.getGameField().toGroup(false, null);
-=======
-        this.gameFieldGroup = gameController.getGameField().toGroup();
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         this.playerInterface = new PlayerInterface(gameController, onReturnToMenu, this::refreshGameFieldDisplay);
         this.gameLegend = new GameLegend();
         
@@ -79,25 +75,13 @@ public class GameScreen extends HBox {
         gameFieldScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         gameFieldScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         
-        // Center the game field within the scroll pane
-        gameFieldScrollPane.viewportBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
-            double contentWidth = gameFieldGroup.getBoundsInLocal().getWidth();
-            double contentHeight = gameFieldGroup.getBoundsInLocal().getHeight();
-            double viewportWidth = newBounds.getWidth();
-            double viewportHeight = newBounds.getHeight();
-            
-            // Center horizontally
-            if (contentWidth < viewportWidth) {
-                gameFieldGroup.setTranslateX((viewportWidth - contentWidth) / 2);
-            } else {
-                gameFieldGroup.setTranslateX(0);
-            }
-            
-            // Center vertically
-            if (contentHeight < viewportHeight) {
-                gameFieldGroup.setTranslateY((viewportHeight - contentHeight) / 2);
-            } else {
-                gameFieldGroup.setTranslateY(0);
+        // Setup centering for the game field
+        setupGameFieldCentering();
+        
+        // Apply initial centering when the scene is ready
+        gameFieldScrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                javafx.application.Platform.runLater(this::centerGameField);
             }
         });
         
@@ -158,44 +142,29 @@ public class GameScreen extends HBox {
      * @param event The mouse click event
      */
     private void handleGameFieldClick(MouseEvent event) {
-<<<<<<< HEAD
         // Handle robber placement
-=======
-        // Check for robber placement first
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         if (gameController.isWaitingForRobberPlacement()) {
             handleRobberPlacement(event);
             return;
         }
         
-<<<<<<< HEAD
         // Handle building placement (either in building mode or setup phase)
-=======
-        // Check for building placement
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         if (gameController.isBuildingModeActive()) {
             handleBuildingPlacement(event);
             return;
         }
-<<<<<<< HEAD
         
         // Handle setup phase - allow direct building without mode activation
         if (gameController.getPlayerManager().isSetupPhase()) {
             handleSetupPhaseBuilding(event);
             return;
         }
-=======
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     }
     
     /**
      * Handle robber placement clicks
      */
     private void handleRobberPlacement(MouseEvent event) {
-<<<<<<< HEAD
-=======
-        // Find which hexagon was clicked
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         double clickX = event.getX();
         double clickY = event.getY();
         
@@ -216,7 +185,6 @@ public class GameScreen extends HBox {
      * Handle building placement clicks
      */
     private void handleBuildingPlacement(MouseEvent event) {
-<<<<<<< HEAD
         double clickX = event.getX();
         double clickY = event.getY();
         String buildingType = gameController.getCurrentBuildingMode();
@@ -318,23 +286,6 @@ public class GameScreen extends HBox {
         double projY = y1 + t * (y2 - y1);
         
         return Math.sqrt(Math.pow(px - projX, 2) + Math.pow(py - projY, 2));
-=======
-        // Check if any clickable element was clicked
-        if (event.getTarget() instanceof javafx.scene.Node) {
-            javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
-            Object userData = target.getUserData();
-            
-            if (userData instanceof String) {
-                String elementId = (String) userData;
-                if (elementId.startsWith("node_") || elementId.startsWith("edge_")) {
-                    boolean success = gameController.handleBuildingPlacement(elementId);
-                    if (success) {
-                        refreshGameFieldDisplay();
-                    }
-                }
-            }
-        }
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     }
     
     /**
@@ -345,41 +296,59 @@ public class GameScreen extends HBox {
         boolean showPlacementOptions = gameController.isBuildingModeActive();
         String buildingType = gameController.getCurrentBuildingMode();
         
-<<<<<<< HEAD
         gameFieldGroup = gameController.getGameField().toGroup(showPlacementOptions, buildingType);
         setupGameFieldInteraction();
-=======
-        // Create new game field with updated state and building mode
-        boolean showPlacementOptions = gameController.isBuildingModeActive();
-        String buildingType = gameController.getCurrentBuildingMode();
-        gameFieldGroup = gameController.getGameField().toGroup(showPlacementOptions, buildingType);
-        setupGameFieldClickHandler();
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         
         // Update the scroll pane content
         gameFieldScrollPane.setContent(gameFieldGroup);
         
-        // Re-center the game field
-        gameFieldScrollPane.viewportBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
-            double contentWidth = gameFieldGroup.getBoundsInLocal().getWidth();
-            double contentHeight = gameFieldGroup.getBoundsInLocal().getHeight();
-            double viewportWidth = newBounds.getWidth();
-            double viewportHeight = newBounds.getHeight();
-            
-            // Center horizontally
-            if (contentWidth < viewportWidth) {
-                gameFieldGroup.setTranslateX((viewportWidth - contentWidth) / 2);
-            } else {
-                gameFieldGroup.setTranslateX(0);
-            }
-            
-            // Center vertically
-            if (contentHeight < viewportHeight) {
-                gameFieldGroup.setTranslateY((viewportHeight - contentHeight) / 2);
-            } else {
-                gameFieldGroup.setTranslateY(0);
-            }
-        });
+        // Apply centering immediately and set up listener for future changes
+        centerGameField();
+        setupGameFieldCentering();
+    }
+    
+    /**
+     * Center the game field within the scroll pane viewport
+     */
+    private void centerGameField() {
+        double contentWidth = gameFieldGroup.getBoundsInLocal().getWidth();
+        double contentHeight = gameFieldGroup.getBoundsInLocal().getHeight();
+        double viewportWidth = gameFieldScrollPane.getViewportBounds().getWidth();
+        double viewportHeight = gameFieldScrollPane.getViewportBounds().getHeight();
+        
+        // Center horizontally
+        if (contentWidth < viewportWidth) {
+            gameFieldGroup.setTranslateX((viewportWidth - contentWidth) / 2);
+        } else {
+            gameFieldGroup.setTranslateX(0);
+        }
+        
+        // Center vertically
+        if (contentHeight < viewportHeight) {
+            gameFieldGroup.setTranslateY((viewportHeight - contentHeight) / 2);
+        } else {
+            gameFieldGroup.setTranslateY(0);
+        }
+    }
+    
+    /**
+     * Setup centering listener for the game field
+     */
+    private void setupGameFieldCentering() {
+        // Remove any existing listeners to avoid duplicates
+        gameFieldScrollPane.viewportBoundsProperty().removeListener(this::handleViewportBoundsChange);
+        
+        // Add the centering listener
+        gameFieldScrollPane.viewportBoundsProperty().addListener(this::handleViewportBoundsChange);
+    }
+    
+    /**
+     * Handle viewport bounds changes for centering
+     */
+    private void handleViewportBoundsChange(javafx.beans.value.ObservableValue<?> observable, 
+                                           javafx.geometry.Bounds oldBounds, 
+                                           javafx.geometry.Bounds newBounds) {
+        centerGameField();
     }
     
     /**

@@ -1,9 +1,7 @@
 package de.philx.catan.GameField;
 
 import de.philx.catan.GamePieces.Street;
-import javafx.scene.Group;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 
 /**
  * Represents an edge on the game board where roads can be built
@@ -122,8 +120,6 @@ public class Edge {
     }
     
     /**
-<<<<<<< HEAD
-=======
      * Convert player color character to JavaFX Color
      * @param colorChar The color character (R, B, G, Y)
      * @return JavaFX Color object
@@ -139,12 +135,10 @@ public class Edge {
     }
 
     /**
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
      * Creates a visual representation of this edge
      * @param showAsClickable Whether to show as a clickable placement option
      * @return Group containing the visual elements
      */
-<<<<<<< HEAD
     public javafx.scene.Group createVisualGroup(boolean showAsClickable) {
         javafx.scene.Group group = new javafx.scene.Group();
         
@@ -160,25 +154,6 @@ public class Edge {
             edgeLine.setStrokeWidth(4);
         } else if (showAsClickable) {
             // Show as placement option
-            edgeLine.setStroke(javafx.scene.paint.Color.LIGHTBLUE);
-            edgeLine.setStrokeWidth(3);
-            edgeLine.setOpacity(0.7);
-        } else {
-            // Show as available spot
-            edgeLine.setStroke(javafx.scene.paint.Color.LIGHTGRAY);
-=======
-    public Group createVisualGroup(boolean showAsClickable) {
-        Group group = new Group();
-        
-        // Create line for edge
-        Line edgeLine = new Line(node1.getX(), node1.getY(), node2.getX(), node2.getY());
-        
-        if (hasRoad()) {
-            // Show existing road
-            edgeLine.setStroke(getPlayerColorAsJavaFXColor(road.getColor()));
-            edgeLine.setStrokeWidth(4);
-        } else if (showAsClickable) {
-            // Show as placement option
             edgeLine.setStroke(Color.LIGHTGREEN);
             edgeLine.setStrokeWidth(6);
             edgeLine.setOpacity(0.7);
@@ -188,7 +163,6 @@ public class Edge {
         } else {
             // Show as normal edge
             edgeLine.setStroke(Color.LIGHTGRAY);
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
             edgeLine.setStrokeWidth(1);
             edgeLine.setOpacity(0.3);
         }
@@ -197,7 +171,6 @@ public class Edge {
         return group;
     }
     
-<<<<<<< HEAD
     /**
      * Convert player ID to JavaFX Color
      */
@@ -210,9 +183,6 @@ public class Edge {
             default: return javafx.scene.paint.Color.GRAY;
         }
     }
-    
-=======
->>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     @Override
     public String toString() {
         return "Edge{" +
