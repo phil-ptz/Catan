@@ -15,7 +15,11 @@ public class PlayerInterface extends VBox {
 
     private final GameController gameController;
     private final Runnable onReturnToMenu;
+<<<<<<< HEAD
     private final Runnable onGameFieldRefreshNeeded;
+=======
+    private final Runnable onGameStateChanged; // New callback for game state changes
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     private final Label currentPlayerLabel;
     private final Label diceResultLabel;
     private final Label gameMessageLabel;
@@ -27,6 +31,7 @@ public class PlayerInterface extends VBox {
     private VBox gameStatusCard;
     private VBox controlsCard;
     
+<<<<<<< HEAD
     public PlayerInterface(GameController gameController, Runnable onReturnToMenu) {
         this(gameController, onReturnToMenu, null);
     }
@@ -35,6 +40,12 @@ public class PlayerInterface extends VBox {
         this.gameController = gameController;
         this.onReturnToMenu = onReturnToMenu;
         this.onGameFieldRefreshNeeded = onGameFieldRefreshNeeded;
+=======
+    public PlayerInterface(GameController gameController, Runnable onReturnToMenu, Runnable onGameStateChanged) {
+        this.gameController = gameController;
+        this.onReturnToMenu = onReturnToMenu;
+        this.onGameStateChanged = onGameStateChanged;
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         
         this.setSpacing(15);
         this.setPadding(new Insets(15));
@@ -221,6 +232,7 @@ public class PlayerInterface extends VBox {
     }
     
     private void handleBuild() {
+<<<<<<< HEAD
         // Show enhanced building interface with game field refresh callback
         Runnable refreshCallback = () -> {
             updateDisplays();
@@ -229,6 +241,40 @@ public class PlayerInterface extends VBox {
             }
         };
         BuildingInterface.showBuildingWindow(gameController, refreshCallback);
+=======
+        // Show building options dialog or cycle through building types
+        showBuildingOptionsDialog();
+    }
+    
+    /**
+     * Show building options to the player
+     */
+    private void showBuildingOptionsDialog() {
+        // Create a simple selection dialog for building types
+        javafx.scene.control.ChoiceDialog<String> dialog = new javafx.scene.control.ChoiceDialog<>("Straße", "Straße", "Siedlung", "Stadt");
+        dialog.setTitle("Gebäude bauen");
+        dialog.setHeaderText("Wähle was du bauen möchtest:");
+        dialog.setContentText("Gebäudetyp:");
+        
+        java.util.Optional<String> result = dialog.showAndWait();
+        result.ifPresent(buildingType -> {
+            String mode = null;
+            switch (buildingType) {
+                case "Straße": mode = "road"; break;
+                case "Siedlung": mode = "settlement"; break;
+                case "Stadt": mode = "city"; break;
+            }
+            
+            if (mode != null) {
+                gameController.startBuildingMode(mode);
+                // Trigger refresh of game field
+                if (onGameStateChanged != null) {
+                    onGameStateChanged.run();
+                }
+                updateDisplays();
+            }
+        });
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     }
     
     private void handleQuit() {

@@ -29,8 +29,12 @@ public class GameScreen extends HBox {
 
     public GameScreen(int width, int height, Runnable onReturnToMenu) {
         this.gameController = new GameController();
+<<<<<<< HEAD
         // Initialize with visual elements for nodes and edges
         this.gameFieldGroup = gameController.getGameField().toGroup(false, null);
+=======
+        this.gameFieldGroup = gameController.getGameField().toGroup();
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         this.playerInterface = new PlayerInterface(gameController, onReturnToMenu, this::refreshGameFieldDisplay);
         this.gameLegend = new GameLegend();
         
@@ -154,29 +158,44 @@ public class GameScreen extends HBox {
      * @param event The mouse click event
      */
     private void handleGameFieldClick(MouseEvent event) {
+<<<<<<< HEAD
         // Handle robber placement
+=======
+        // Check for robber placement first
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         if (gameController.isWaitingForRobberPlacement()) {
             handleRobberPlacement(event);
             return;
         }
         
+<<<<<<< HEAD
         // Handle building placement (either in building mode or setup phase)
+=======
+        // Check for building placement
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         if (gameController.isBuildingModeActive()) {
             handleBuildingPlacement(event);
             return;
         }
+<<<<<<< HEAD
         
         // Handle setup phase - allow direct building without mode activation
         if (gameController.getPlayerManager().isSetupPhase()) {
             handleSetupPhaseBuilding(event);
             return;
         }
+=======
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     }
     
     /**
      * Handle robber placement clicks
      */
     private void handleRobberPlacement(MouseEvent event) {
+<<<<<<< HEAD
+=======
+        // Find which hexagon was clicked
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         double clickX = event.getX();
         double clickY = event.getY();
         
@@ -197,6 +216,7 @@ public class GameScreen extends HBox {
      * Handle building placement clicks
      */
     private void handleBuildingPlacement(MouseEvent event) {
+<<<<<<< HEAD
         double clickX = event.getX();
         double clickY = event.getY();
         String buildingType = gameController.getCurrentBuildingMode();
@@ -298,6 +318,23 @@ public class GameScreen extends HBox {
         double projY = y1 + t * (y2 - y1);
         
         return Math.sqrt(Math.pow(px - projX, 2) + Math.pow(py - projY, 2));
+=======
+        // Check if any clickable element was clicked
+        if (event.getTarget() instanceof javafx.scene.Node) {
+            javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
+            Object userData = target.getUserData();
+            
+            if (userData instanceof String) {
+                String elementId = (String) userData;
+                if (elementId.startsWith("node_") || elementId.startsWith("edge_")) {
+                    boolean success = gameController.handleBuildingPlacement(elementId);
+                    if (success) {
+                        refreshGameFieldDisplay();
+                    }
+                }
+            }
+        }
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
     }
     
     /**
@@ -308,8 +345,16 @@ public class GameScreen extends HBox {
         boolean showPlacementOptions = gameController.isBuildingModeActive();
         String buildingType = gameController.getCurrentBuildingMode();
         
+<<<<<<< HEAD
         gameFieldGroup = gameController.getGameField().toGroup(showPlacementOptions, buildingType);
         setupGameFieldInteraction();
+=======
+        // Create new game field with updated state and building mode
+        boolean showPlacementOptions = gameController.isBuildingModeActive();
+        String buildingType = gameController.getCurrentBuildingMode();
+        gameFieldGroup = gameController.getGameField().toGroup(showPlacementOptions, buildingType);
+        setupGameFieldClickHandler();
+>>>>>>> 8700dfc0315ca760c0c80ad728ffaa6e672109d4
         
         // Update the scroll pane content
         gameFieldScrollPane.setContent(gameFieldGroup);
