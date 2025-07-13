@@ -7,7 +7,6 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
@@ -22,8 +21,6 @@ public class SettingsScreen extends StackPane {
     private VBox settingsContainer;
     private Label titleLabel;
     private ToggleButton themeToggle;
-    private Slider volumeSlider;
-    private Slider soundEffectsSlider;
 
     public SettingsScreen(Runnable onClose) {
         setupLayout();
@@ -64,7 +61,7 @@ public class SettingsScreen extends StackPane {
     
     private void setupTitle() {
         // Main title
-        titleLabel = new Label("⚙️ Einstellungen");
+        titleLabel = new Label("Einstellungen");
         titleLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 42));
         titleLabel.setAlignment(Pos.CENTER);
         titleLabel.setTextFill(Color.web(ThemeManager.ACCENT_COLOR));
@@ -84,21 +81,11 @@ public class SettingsScreen extends StackPane {
         // Theme Settings Section
         VBox themeSection = createThemeSection();
         
-        // Audio Settings Section
-        VBox audioSection = createAudioSection();
-        
-        // Game Settings Section
-        VBox gameSection = createGameSection();
-        
         // Navigation Section
         VBox navigationSection = createNavigationSection(onClose);
         
         settingsContainer.getChildren().addAll(
             themeSection,
-            createSeparator(),
-            audioSection,
-            createSeparator(),
-            gameSection,
             createSeparator(),
             navigationSection
         );
@@ -140,56 +127,6 @@ public class SettingsScreen extends StackPane {
         return section;
     }
     
-    private VBox createAudioSection() {
-        VBox section = new VBox(15);
-        
-        Label sectionTitle = new Label("🔊 Audio-Einstellungen");
-        sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
-        
-        // Master volume
-        VBox volumeBox = createSliderSetting("Lautstärke:", 70);
-        volumeSlider = (Slider) ((HBox) volumeBox.getChildren().get(0)).getChildren().get(1);
-        
-        // Sound effects volume
-        VBox soundBox = createSliderSetting("Soundeffekte:", 85);
-        soundEffectsSlider = (Slider) ((HBox) soundBox.getChildren().get(0)).getChildren().get(1);
-        
-        section.getChildren().addAll(sectionTitle, volumeBox, soundBox);
-        return section;
-    }
-    
-    private VBox createGameSection() {
-        VBox section = new VBox(15);
-        
-        Label sectionTitle = new Label("🎮 Spiel-Einstellungen");
-        sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
-        
-        // Animation speed
-        VBox animationBox = createSliderSetting("Animationsgeschwindigkeit:", 60);
-        
-        // Auto-save toggle
-        HBox autoSaveBox = new HBox(15);
-        autoSaveBox.setAlignment(Pos.CENTER_LEFT);
-        
-        Label autoSaveLabel = new Label("Automatisch speichern:");
-        autoSaveLabel.setFont(Font.font("Segoe UI", 14));
-        autoSaveLabel.setPrefWidth(180);
-        
-        ToggleButton autoSaveToggle = new ToggleButton("AN");
-        autoSaveToggle.setSelected(true);
-        autoSaveToggle.setPrefWidth(80);
-        autoSaveToggle.setOnAction(e -> {
-            autoSaveToggle.setText(autoSaveToggle.isSelected() ? "AN" : "AUS");
-        });
-        
-        styleToggleButton(autoSaveToggle);
-        
-        autoSaveBox.getChildren().addAll(autoSaveLabel, autoSaveToggle);
-        section.getChildren().addAll(sectionTitle, animationBox, autoSaveBox);
-        
-        return section;
-    }
-    
     private VBox createNavigationSection(Runnable onClose) {
         VBox section = new VBox(15);
         
@@ -199,7 +136,7 @@ public class SettingsScreen extends StackPane {
         HBox buttonBox = new HBox(15);
         buttonBox.setAlignment(Pos.CENTER);
         
-        StyledButton saveButton = new StyledButton("💾 Einstellungen speichern", StyledButton.ButtonType.SUCCESS);
+        StyledButton saveButton = new StyledButton("💾 Speichern", StyledButton.ButtonType.SUCCESS);
         saveButton.setPrefWidth(200);
         saveButton.setOnAction(e -> {
             // Save settings (placeholder)
@@ -209,11 +146,10 @@ public class SettingsScreen extends StackPane {
         StyledButton resetButton = new StyledButton("🔄 Zurücksetzen", StyledButton.ButtonType.WARNING);
         resetButton.setPrefWidth(150);
         resetButton.setOnAction(e -> {
-            // Reset settings (placeholder)
             resetToDefaults();
         });
         
-        StyledButton backButton = new StyledButton("⬅️ Zurück zum Menü", StyledButton.ButtonType.PRIMARY);
+        StyledButton backButton = new StyledButton("⬅ Zum Menü", StyledButton.ButtonType.PRIMARY);
         backButton.setPrefWidth(180);
         backButton.setOnAction(e -> onClose.run());
         
@@ -221,41 +157,6 @@ public class SettingsScreen extends StackPane {
         section.getChildren().addAll(sectionTitle, buttonBox);
         
         return section;
-    }
-    
-    private VBox createSliderSetting(String labelText, double defaultValue) {
-        VBox container = new VBox(8);
-        
-        Label label = new Label(labelText);
-        label.setFont(Font.font("Segoe UI", 14));
-        
-        HBox sliderBox = new HBox(15);
-        sliderBox.setAlignment(Pos.CENTER_LEFT);
-        
-        Label valueLabel = new Label(labelText.replace(":", ""));
-        valueLabel.setFont(Font.font("Segoe UI", 12));
-        valueLabel.setPrefWidth(140);
-        
-        Slider slider = new Slider(0, 100, defaultValue);
-        slider.setPrefWidth(200);
-        slider.setShowTickLabels(true);
-        slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(25);
-        slider.setMinorTickCount(4);
-        slider.setSnapToTicks(false);
-        
-        Label percentLabel = new Label(String.format("%.0f%%", defaultValue));
-        percentLabel.setFont(Font.font("Segoe UI", 12));
-        percentLabel.setPrefWidth(50);
-        
-        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            percentLabel.setText(String.format("%.0f%%", newVal.doubleValue()));
-        });
-        
-        sliderBox.getChildren().addAll(valueLabel, slider, percentLabel);
-        container.getChildren().addAll(sliderBox);
-        
-        return container;
     }
     
     private void styleToggleButton(ToggleButton button) {
@@ -290,8 +191,19 @@ public class SettingsScreen extends StackPane {
     }
     
     private void resetToDefaults() {
-        volumeSlider.setValue(70);
-        soundEffectsSlider.setValue(85);
+        // Reset theme to light mode (default)
+        ThemeManager themeManager = ThemeManager.getInstance();
+        if (themeManager.isDarkMode()) {
+            themeManager.toggleTheme();
+        }
+        
+        // Update the toggle button to reflect the reset state
+        themeToggle.setSelected(false);
+        themeToggle.setText("AUS");
+        
+        // Apply the theme changes
+        applyTheme();
+        
         System.out.println("Einstellungen auf Standardwerte zurückgesetzt");
     }
     
