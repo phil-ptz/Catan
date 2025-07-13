@@ -119,7 +119,7 @@ public class GameLegend extends VBox {
     private VBox createTerrainTypesSection() {
         VBox section = new VBox(ITEM_SPACING);
         
-        Label sectionTitle = new Label("🏞️ Gelände & Ressourcen");
+        Label sectionTitle = new Label("Gelände & Ressourcen");
         sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         section.getChildren().add(sectionTitle);
         
@@ -216,7 +216,7 @@ public class GameLegend extends VBox {
     private VBox createBuildingCostsSection() {
         VBox section = new VBox(ITEM_SPACING);
         
-        Label sectionTitle = new Label("🏗️ Baukosten");
+        Label sectionTitle = new Label("Baukosten");
         sectionTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
         
         // Road cost

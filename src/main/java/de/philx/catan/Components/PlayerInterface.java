@@ -154,7 +154,7 @@ public class PlayerInterface extends VBox {
         controlsCard = new VBox(15);
         
         // Card header
-        Label cardTitle = new Label("⚙️ Spielsteuerung");
+        Label cardTitle = new Label("Spielsteuerung");
         cardTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
         
         // Primary actions
@@ -164,7 +164,7 @@ public class PlayerInterface extends VBox {
         diceButton.setPrefWidth(250);
         diceButton.setOnAction(e -> handleDiceRoll());
         
-        endTurnButton = new StyledButton("⏭️ Zug beenden", StyledButton.ButtonType.SUCCESS);
+        endTurnButton = new StyledButton("⏭ Zug beenden", StyledButton.ButtonType.SUCCESS);
         endTurnButton.setPrefWidth(250);
         endTurnButton.setOnAction(e -> handleEndTurn());
         
@@ -177,7 +177,7 @@ public class PlayerInterface extends VBox {
         tradeButton.setPrefWidth(250);
         tradeButton.setOnAction(e -> handleTrade());
         
-        buildButton = new StyledButton("🏗️ Bauen", StyledButton.ButtonType.SECONDARY);
+        buildButton = new StyledButton("Bauen", StyledButton.ButtonType.SECONDARY);
         buildButton.setPrefWidth(250);
         buildButton.setOnAction(e -> handleBuild());
         
