@@ -1,10 +1,12 @@
 package de.philx.catan.Components;
 
 import de.philx.catan.Controllers.GameController;
+import de.philx.catan.Players.Player;
 import de.philx.catan.Utils.StyledButton;
 import de.philx.catan.Utils.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
@@ -23,6 +25,8 @@ public class PlayerInterface extends VBox {
     private final Label buildingsLabel;
     private StyledButton diceButton;
     private StyledButton endTurnButton;
+    private StyledButton tradeButton;
+    private StyledButton buildButton;
     private VBox playerInfoCard;
     private VBox gameStatusCard;
     private VBox controlsCard;
@@ -169,11 +173,11 @@ public class PlayerInterface extends VBox {
         // Secondary actions
         VBox secondaryActions = new VBox(8);
         
-        StyledButton tradeButton = new StyledButton("💰 Handeln", StyledButton.ButtonType.SECONDARY);
+        tradeButton = new StyledButton("💰 Handeln", StyledButton.ButtonType.SECONDARY);
         tradeButton.setPrefWidth(250);
         tradeButton.setOnAction(e -> handleTrade());
         
-        StyledButton buildButton = new StyledButton("🏗️ Bauen", StyledButton.ButtonType.SECONDARY);
+        buildButton = new StyledButton("🏗️ Bauen", StyledButton.ButtonType.SECONDARY);
         buildButton.setPrefWidth(250);
         buildButton.setOnAction(e -> handleBuild());
         
@@ -207,17 +211,44 @@ public class PlayerInterface extends VBox {
     }
     
     private void handleTrade() {
+        // Check if game is started and player is available
+        if (!gameController.getPlayerManager().isGameStarted()) {
+            showErrorMessage("Das Spiel wurde noch nicht gestartet!");
+            return;
+        }
+        
+        Player currentPlayer = gameController.getCurrentPlayer();
+        if (currentPlayer == null) {
+            showErrorMessage("Kein aktiver Spieler verfügbar! Bitte starte das Spiel neu.");
+            System.err.println("DEBUG: getCurrentPlayer() returned null even though gameStarted is true");
+            System.err.println("DEBUG: Player count: " + gameController.getPlayerManager().getPlayerCount());
+            System.err.println("DEBUG: Current player index: " + gameController.getPlayerManager().getCurrentPlayerIndex());
+            return;
+        }
+        
         // Show trading interface
         TradingInterface.showTradingWindow(
             gameController.getTradeController(), 
             gameController.getPlayerManager(), 
-            gameController.getCurrentPlayer().getPlayerId(), 
+            currentPlayer.getPlayerId(), 
             this::updateDisplays
         );
     }
     
     private void handleBuild() {
-        // Show building options dialog or cycle through building types
+        // Check if game is started
+        if (!gameController.getPlayerManager().isGameStarted()) {
+            showErrorMessage("Das Spiel wurde noch nicht gestartet!");
+            return;
+        }
+        
+        // Check if current player is available
+        if (gameController.getCurrentPlayer() == null) {
+            showErrorMessage("Kein aktiver Spieler verfügbar!");
+            return;
+        }
+        
+        // Show building options dialog
         showBuildingOptionsDialog();
     }
     
@@ -272,8 +303,13 @@ public class PlayerInterface extends VBox {
         buildingsLabel.setText(gameController.getCurrentPlayerBuildings());
         
         // Update button states based on game state
+        boolean gameStarted = gameController.getPlayerManager().isGameStarted();
+        boolean hasCurrentPlayer = gameController.getCurrentPlayer() != null;
+        
         diceButton.setDisable(!gameController.canCurrentPlayerRollDice());
-        endTurnButton.setDisable(!gameController.getPlayerManager().isGameStarted());
+        endTurnButton.setDisable(!gameStarted);
+        tradeButton.setDisable(!gameStarted || !hasCurrentPlayer);
+        buildButton.setDisable(!gameStarted || !hasCurrentPlayer);
     }
     
     /**
@@ -332,5 +368,17 @@ public class PlayerInterface extends VBox {
                 updateLabelsInCard((VBox) node, textColor, secondaryTextColor);
             }
         });
+    }
+    
+    /**
+     * Show an error message to the user
+     * @param message The error message to display
+     */
+    private void showErrorMessage(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warnung");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

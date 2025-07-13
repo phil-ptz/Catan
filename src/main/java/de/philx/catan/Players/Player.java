@@ -24,7 +24,7 @@ public class Player {
     
     // Player identity
     private String name;
-    private String color;  // Changed to String for better color representation
+    private PlayerColor color;  // Store PlayerColor enum directly
     private int playerId;
     private boolean isActive;
     private boolean hasRolledDice; // Track if player has rolled dice this turn
@@ -88,7 +88,7 @@ public class Player {
     public Player(int playerId, String name, PlayerColor color, int turnOrder) {
         this.playerId = playerId;
         this.name = name;
-        this.color = color.getDisplayName();
+        this.color = color;  // Store enum directly
         this.turnOrder = turnOrder;
         this.isActive = false;
         
@@ -413,8 +413,12 @@ public class Player {
         this.name = name;
     }
     
-    public String getColor() {
+    public PlayerColor getColor() {
         return color;
+    }
+    
+    public String getColorDisplayName() {
+        return color.getDisplayName();
     }
     
     public boolean isActive() {

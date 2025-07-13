@@ -161,23 +161,16 @@ public class PlayerManager {
             // Forward order: 0, 1, 2, 3
             setupPlayerIndex++;
             if (setupPlayerIndex >= players.size()) {
-                if (setupRound == 1) {
-                    // Switch to round 2, reverse order
-                    setupRound = 2;
-                    setupForward = false;
-                    setupPlayerIndex = players.size() - 1;
-                } else {
-                    // Setup complete
-                    setupPhase = false;
-                    currentPlayerIndex = 0; // Start normal game with first player
-                    return false;
-                }
+                // End of round 1 - switch to round 2, reverse order
+                setupRound = 2;
+                setupForward = false;
+                setupPlayerIndex = players.size() - 1;
             }
         } else {
             // Reverse order: 3, 2, 1, 0
             setupPlayerIndex--;
             if (setupPlayerIndex < 0) {
-                // Setup complete
+                // Setup complete - all players have placed 2 settlements + 2 roads
                 setupPhase = false;
                 currentPlayerIndex = 0; // Start normal game with first player
                 return false;
@@ -223,6 +216,26 @@ public class PlayerManager {
     }
     
     /**
+     * Get player by ID
+     * @param playerId Player ID to find
+     * @return Player with matching ID, or null if not found
+     */
+    public Player getPlayerById(int playerId) {
+        return players.stream()
+            .filter(p -> p.getPlayerId() == playerId)
+            .findFirst()
+            .orElse(null);
+    }
+    
+    /**
+     * Get the current player index (for debugging purposes)
+     * @return current player index
+     */
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+    
+    /**
      * Set the current player index (for setup phase management)
      * @param index The player index to set as current
      */
@@ -230,18 +243,6 @@ public class PlayerManager {
         if (index >= 0 && index < players.size()) {
             currentPlayerIndex = index;
         }
-    }
-    
-    /**
-     * Get player by ID
-     * @param playerId Player ID to find
-     * @return Player object or null if not found
-     */
-    public Player getPlayerById(int playerId) {
-        return players.stream()
-                .filter(p -> p.getPlayerId() == playerId)
-                .findFirst()
-                .orElse(null);
     }
     
     /**
@@ -310,7 +311,7 @@ public class PlayerManager {
      * @return true if color is taken
      */
     public boolean isColorTaken(Player.PlayerColor color) {
-        return players.stream().anyMatch(p -> p.getColor().equals(color.getDisplayName()));
+        return players.stream().anyMatch(p -> p.getColor() == color);
     }
     
     /**
@@ -341,8 +342,8 @@ public class PlayerManager {
             players.get(i).setTurnOrder(turnOrders.get(i));
         }
         
-        // Sort players by new turn order
-        players.sort(Comparator.comparingInt(Player::getTurnOrder));
+        // No need to sort players list - turn order is handled by turnOrder field
+        // Use getPlayersInTurnOrder() when sorted order is needed
         currentPlayerIndex = 0;
     }
     

@@ -61,8 +61,8 @@ public class LongestRoadTest {
             Edge edge2 = gameField.getEdges().get(1);
             
             // Place roads manually for testing
-            Street road1 = new Street(player.getPlayerId(), player.getColor().charAt(0));
-            Street road2 = new Street(player.getPlayerId(), player.getColor().charAt(0));
+            Street road1 = new Street(player.getPlayerId(), player.getColorDisplayName().charAt(0));
+            Street road2 = new Street(player.getPlayerId(), player.getColorDisplayName().charAt(0));
             
             edge1.setRoad(road1);
             edge2.setRoad(road2);

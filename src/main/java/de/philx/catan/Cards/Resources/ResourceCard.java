@@ -1,4 +1,0 @@
-package de.philx.catan.Cards.Resources;
-
-public class ResourceCard {
-}

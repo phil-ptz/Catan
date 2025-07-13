@@ -15,7 +15,7 @@ public class DiceRollTest {
         GameController gameController = new GameController();
         
         System.out.println("Test Players Initialized:");
-        System.out.println("- " + gameController.getCurrentPlayer().getName() + " (" + gameController.getCurrentPlayer().getColor() + ")");
+        System.out.println("- " + gameController.getCurrentPlayer().getName() + " (" + gameController.getCurrentPlayer().getColorDisplayName() + ")");
         System.out.println("- Game started: " + gameController.getPlayerManager().isGameStarted());
         System.out.println();
         

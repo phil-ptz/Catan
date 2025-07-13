@@ -1,5 +1,6 @@
 package de.philx.catan.Components;
 
+import de.philx.catan.Controllers.BuildMode;
 import de.philx.catan.Controllers.GameController;
 import de.philx.catan.Players.Player;
 import de.philx.catan.Players.Player.ResourceType;
@@ -278,10 +279,27 @@ public class BuildingInterface extends VBox {
         
         // Update status based on building mode
         if (gameController.isBuildingModeActive()) {
-            String buildingType = gameController.getCurrentBuildingMode();
+            BuildMode buildingMode = gameController.getCurrentBuildingMode();
+            String buildingType = convertBuildModeToString(buildingMode);
             statusLabel.setText("Bauen-Modus aktiv: " + getBuildingName(buildingType));
         } else {
             statusLabel.setText("Wähle was du bauen möchtest:");
+        }
+    }
+    
+    private String convertBuildModeToString(BuildMode buildMode) {
+        if (buildMode == null) return "";
+        
+        switch (buildMode) {
+            case ROAD:
+            case SETUP_ROAD:
+                return "road";
+            case SETTLEMENT:
+                return "settlement";
+            case CITY:
+                return "city";
+            default:
+                return "";
         }
     }
     

@@ -2,6 +2,7 @@ package de.philx.catan.Screens;
 
 import de.philx.catan.Components.GameLegend;
 import de.philx.catan.Components.PlayerInterface;
+import de.philx.catan.Controllers.BuildMode;
 import de.philx.catan.Controllers.GameController;
 import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.GameField;
@@ -29,6 +30,8 @@ public class GameScreen extends HBox {
 
     public GameScreen(int width, int height, Runnable onReturnToMenu) {
         this.gameController = new GameController();
+        // Start the test game to initialize players
+        this.gameController.startTestGame();
         // Initialize with visual elements for nodes and edges
         this.gameFieldGroup = gameController.getGameField().toGroup(false, null);
         this.playerInterface = new PlayerInterface(gameController, onReturnToMenu, this::refreshGameFieldDisplay);
@@ -182,19 +185,39 @@ public class GameScreen extends HBox {
     }
     
     /**
+     * Convert BuildMode enum to string for legacy UI compatibility
+     */
+    private String convertBuildModeToString(BuildMode buildMode) {
+        if (buildMode == null) return null;
+        
+        switch (buildMode) {
+            case ROAD:
+            case SETUP_ROAD:
+                return "road";
+            case SETTLEMENT:
+                return "settlement";
+            case CITY:
+                return "city";
+            default:
+                return null;
+        }
+    }
+    
+    /**
      * Handle building placement clicks
      */
     private void handleBuildingPlacement(MouseEvent event) {
         double clickX = event.getX();
         double clickY = event.getY();
-        String buildingType = gameController.getCurrentBuildingMode();
+        BuildMode buildingMode = gameController.getCurrentBuildingMode();
         
-        if (buildingType == null) return;
+        if (buildingMode == null) return;
         
-        if ("settlement".equals(buildingType) || "city".equals(buildingType)) {
+        if (buildingMode == BuildMode.SETTLEMENT || buildingMode == BuildMode.CITY) {
             // Handle node-based building (settlements/cities)
+            String buildingType = convertBuildModeToString(buildingMode);
             handleNodeBuilding(clickX, clickY, buildingType);
-        } else if ("road".equals(buildingType)) {
+        } else if (buildingMode == BuildMode.ROAD || buildingMode == BuildMode.SETUP_ROAD) {
             // Handle edge-based building (roads)
             handleEdgeBuilding(clickX, clickY);
         }
@@ -294,7 +317,8 @@ public class GameScreen extends HBox {
     private void refreshGameFieldDisplay() {
         // Create new game field with updated state and building mode options
         boolean showPlacementOptions = gameController.isBuildingModeActive();
-        String buildingType = gameController.getCurrentBuildingMode();
+        BuildMode buildingMode = gameController.getCurrentBuildingMode();
+        String buildingType = convertBuildModeToString(buildingMode);
         
         gameFieldGroup = gameController.getGameField().toGroup(showPlacementOptions, buildingType);
         setupGameFieldInteraction();
