@@ -5,6 +5,8 @@ import de.philx.catan.Controllers.GameController;
 import de.philx.catan.Players.Player;
 import de.philx.catan.Players.Player.ResourceType;
 import de.philx.catan.Utils.ThemeManager;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,9 +16,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Enhanced building interface with resource costs and building information
@@ -376,5 +375,128 @@ public class BuildingInterface extends VBox {
         
         stage.setScene(scene);
         stage.show();
+    }
+    
+    /**
+     * Create a compact horizontal layout for the building interface
+     */
+    public void setupHorizontalLayout() {
+        this.getChildren().clear();
+        this.setSpacing(10);
+        this.setPadding(new Insets(10));
+        this.setMaxHeight(180);
+        this.setAlignment(Pos.CENTER);
+        
+        // Create horizontal main container
+        HBox mainContainer = new HBox(20);
+        mainContainer.setAlignment(Pos.CENTER);
+        
+        // Title and status section
+        VBox statusSection = new VBox(5);
+        statusSection.setPrefWidth(200);
+        statusSection.setAlignment(Pos.CENTER_LEFT);
+        
+        Label titleLabel = new Label("🔨 Bauen");
+        titleLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        
+        statusLabel.setWrapText(true);
+        statusLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 12));
+        statusLabel.setMaxWidth(180);
+        
+        statusSection.getChildren().addAll(titleLabel, statusLabel);
+        
+        // Building options in horizontal cards
+        HBox buildingCardsContainer = new HBox(10);
+        buildingCardsContainer.setAlignment(Pos.CENTER);
+        
+        // Create compact building cards
+        VBox roadCard = createCompactBuildingCard("🛣️", "Straße", "road", "Verbindet Siedlungen");
+        VBox settlementCard = createCompactBuildingCard("🏠", "Siedlung", "settlement", "1 Siegpunkt + Ressourcen");
+        VBox cityCard = createCompactBuildingCard("🏰", "Stadt", "city", "2 Siegpunkte + 2x Ressourcen");
+        
+        buildingCardsContainer.getChildren().addAll(roadCard, settlementCard, cityCard);
+        
+        // Action section
+        VBox actionSection = new VBox(8);
+        actionSection.setPrefWidth(120);
+        actionSection.setAlignment(Pos.CENTER);
+        
+        Label actionLabel = new Label("⚡ Aktionen");
+        actionLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        
+        cancelButton.setPrefWidth(100);
+        actionSection.getChildren().addAll(actionLabel, cancelButton);
+        
+        mainContainer.getChildren().addAll(statusSection, buildingCardsContainer, actionSection);
+        this.getChildren().add(mainContainer);
+    }
+    
+    private VBox createCompactBuildingCard(String icon, String name, String buildingType, String description) {
+        VBox card = new VBox(5);
+        card.setPadding(new Insets(8));
+        card.setPrefWidth(160);
+        card.setMaxWidth(160);
+        card.setAlignment(Pos.CENTER);
+        
+        // Icon and name
+        VBox header = new VBox(2);
+        header.setAlignment(Pos.CENTER);
+        
+        Label iconLabel = new Label(icon);
+        iconLabel.setFont(Font.font(24));
+        
+        Label nameLabel = new Label(name);
+        nameLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        
+        header.getChildren().addAll(iconLabel, nameLabel);
+        
+        // Description (compact)
+        Label descLabel = new Label(description);
+        descLabel.setWrapText(true);
+        descLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 9));
+        descLabel.setMaxWidth(150);
+        descLabel.setAlignment(Pos.CENTER);
+        
+        // Cost display (compact)
+        HBox costBox = createCompactCostDisplay(buildingType);
+        
+        // Availability (compact)
+        Label availabilityLabel = createAvailabilityLabel(buildingType);
+        availabilityLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 9));
+        
+        // Build button
+        Button buildButton = createBuildingButton("Bauen", buildingType);
+        buildButton.setPrefWidth(120);
+        buildButton.setPrefHeight(25);
+        buildButton.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        
+        card.getChildren().addAll(header, descLabel, costBox, availabilityLabel, buildButton);
+        
+        // Style the card
+        card.setStyle("-fx-background-color: #f0f0f0; " +
+                     "-fx-background-radius: 8px; " +
+                     "-fx-border-color: #cccccc; " +
+                     "-fx-border-radius: 8px; " +
+                     "-fx-border-width: 1px;");
+        
+        return card;
+    }
+    
+    private HBox createCompactCostDisplay(String buildingType) {
+        HBox costBox = new HBox(3);
+        costBox.setAlignment(Pos.CENTER);
+        
+        Map<ResourceType, Integer> costs = BUILDING_COSTS.get(buildingType);
+        if (costs != null) {
+            for (Map.Entry<ResourceType, Integer> entry : costs.entrySet()) {
+                String resourceIcon = getResourceIcon(entry.getKey());
+                
+                Label resourceCost = new Label(entry.getValue() + resourceIcon);
+                resourceCost.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 10));
+                costBox.getChildren().add(resourceCost);
+            }
+        }
+        
+        return costBox;
     }
 }

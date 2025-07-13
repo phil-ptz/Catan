@@ -355,7 +355,7 @@ public class TradingInterface extends VBox {
         }
     }
     
-    private void updateDisplay() {
+    public void updateDisplay() {
         // Update current offer display
         TradeController.TradeOffer currentOffer = tradeController.getCurrentOffer();
         if (currentOffer != null) {
@@ -464,5 +464,201 @@ public class TradingInterface extends VBox {
         
         stage.setScene(scene);
         stage.show();
+    }
+    
+    /**
+     * Create a compact horizontal layout for the trading interface
+     */
+    public void setupHorizontalLayout() {
+        this.getChildren().clear();
+        this.setSpacing(15);
+        this.setPadding(new Insets(10));
+        this.setMaxHeight(180);
+        
+        // Create horizontal main container
+        HBox mainContainer = new HBox(20);
+        mainContainer.setAlignment(Pos.CENTER);
+        
+        // Status section (compact)
+        VBox statusSection = new VBox(5);
+        statusSection.setPrefWidth(200);
+        statusSection.setMaxWidth(200);
+        
+        Label statusTitle = new Label("📊 Status");
+        statusTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        statusSection.getChildren().addAll(statusTitle, tradeStatusLabel, currentOfferLabel);
+        
+        // Trading content in horizontal tabs
+        TabPane compactTabPane = new TabPane();
+        compactTabPane.setPrefWidth(600);
+        compactTabPane.setMaxHeight(150);
+        
+        // Compact player trade tab
+        Tab compactPlayerTab = new Tab("👥 Spieler");
+        compactPlayerTab.setClosable(false);
+        compactPlayerTab.setContent(createCompactPlayerTradeContent());
+        
+        // Compact bank trade tab  
+        Tab compactBankTab = new Tab("🏦 Bank");
+        compactBankTab.setClosable(false);
+        compactBankTab.setContent(createCompactBankTradeContent());
+        
+        compactTabPane.getTabs().addAll(compactPlayerTab, compactBankTab);
+        
+        // Action buttons section
+        VBox actionsSection = new VBox(8);
+        actionsSection.setPrefWidth(180);
+        actionsSection.setAlignment(Pos.CENTER);
+        
+        Label actionsTitle = new Label("⚡ Aktionen");
+        actionsTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+        
+        VBox buttonBox = new VBox(5);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(createOfferButton, acceptOfferButton, declineOfferButton);
+        
+        actionsSection.getChildren().addAll(actionsTitle, buttonBox);
+        
+        mainContainer.getChildren().addAll(statusSection, compactTabPane, actionsSection);
+        this.getChildren().add(mainContainer);
+    }
+    
+    private VBox createCompactPlayerTradeContent() {
+        VBox content = new VBox(8);
+        content.setPadding(new Insets(5));
+        
+        // Target player selection (compact)
+        HBox targetBox = new HBox(5);
+        targetBox.setAlignment(Pos.CENTER_LEFT);
+        targetBox.getChildren().addAll(
+            new Label("Mit:"),
+            targetPlayerCombo
+        );
+        targetPlayerCombo.setPrefWidth(120);
+        
+        // Resources in horizontal layout
+        HBox resourcesBox = new HBox(15);
+        resourcesBox.setAlignment(Pos.CENTER);
+        
+        // Offered resources (compact)
+        VBox offeredBox = new VBox(5);
+        Label offeredLabel = new Label("📤 Anbieten:");
+        offeredLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        GridPane offeredGrid = createCompactResourceGrid(offeredSpinners);
+        offeredBox.getChildren().addAll(offeredLabel, offeredGrid);
+        
+        // Requested resources (compact)
+        VBox requestedBox = new VBox(5);
+        Label requestedLabel = new Label("📥 Wünschen:");
+        requestedLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        GridPane requestedGrid = createCompactResourceGrid(requestedSpinners);
+        requestedBox.getChildren().addAll(requestedLabel, requestedGrid);
+        
+        resourcesBox.getChildren().addAll(offeredBox, requestedBox);
+        
+        content.getChildren().addAll(targetBox, resourcesBox);
+        return content;
+    }
+    
+    private VBox createCompactBankTradeContent() {
+        VBox content = new VBox(8);
+        content.setPadding(new Insets(5));
+        content.setAlignment(Pos.CENTER);
+        
+        // Instruction (compact)
+        Label instructionLabel = new Label("4:1 Tausch mit der Bank");
+        instructionLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        
+        // Trade options in horizontal layout
+        HBox tradeBox = new HBox(10);
+        tradeBox.setAlignment(Pos.CENTER);
+        
+        // Give section
+        VBox giveSection = new VBox(3);
+        giveSection.setAlignment(Pos.CENTER);
+        Label giveLabel = new Label("📤 Abgeben:");
+        giveLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 9));
+        
+        HBox giveControls = new HBox(5);
+        giveControls.setAlignment(Pos.CENTER);
+        bankGiveSpinner.setPrefWidth(60);
+        bankGiveCombo.setPrefWidth(80);
+        giveControls.getChildren().addAll(bankGiveSpinner, bankGiveCombo);
+        
+        giveSection.getChildren().addAll(giveLabel, giveControls);
+        
+        // Arrow
+        Label arrowLabel = new Label("→");
+        arrowLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        
+        // Want section
+        VBox wantSection = new VBox(3);
+        wantSection.setAlignment(Pos.CENTER);
+        Label wantLabel = new Label("📥 Erhalten:");
+        wantLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 9));
+        
+        HBox wantControls = new HBox(5);
+        wantControls.setAlignment(Pos.CENTER);
+        Label oneLabel = new Label("1x");
+        bankWantCombo.setPrefWidth(80);
+        wantControls.getChildren().addAll(oneLabel, bankWantCombo);
+        
+        wantSection.getChildren().addAll(wantLabel, wantControls);
+        
+        tradeBox.getChildren().addAll(giveSection, arrowLabel, wantSection);
+        
+        // Execute button
+        executeBankTradeButton.setPrefWidth(120);
+        
+        content.getChildren().addAll(instructionLabel, tradeBox, executeBankTradeButton);
+        return content;
+    }
+    
+    private GridPane createCompactResourceGrid(Map<ResourceType, Spinner<Integer>> spinners) {
+        GridPane grid = new GridPane();
+        grid.setHgap(3);
+        grid.setVgap(2);
+        grid.setAlignment(Pos.CENTER);
+        
+        // Create a more compact 5x1 layout for resources
+        int col = 0;
+        for (ResourceType resource : ResourceType.values()) {
+            VBox resourceBox = new VBox(2);
+            resourceBox.setAlignment(Pos.CENTER);
+            
+            Label iconLabel = new Label(getResourceIcon(resource));
+            iconLabel.setFont(Font.font(14));
+            
+            Spinner<Integer> spinner = spinners.get(resource);
+            spinner.setPrefWidth(50);
+            spinner.setPrefHeight(25);
+            
+            resourceBox.getChildren().addAll(iconLabel, spinner);
+            grid.add(resourceBox, col, 0);
+            col++;
+        }
+        
+        return grid;
+    }
+    
+    private String getResourceIcon(ResourceType resource) {
+        switch (resource) {
+            case WOOD: return "🌲";
+            case CLAY: return "🧱";
+            case WOOL: return "🐑";
+            case GRAIN: return "🌾";
+            case ORE: return "⛰️";
+            default: return "❓";
+        }
+    }
+    
+    /**
+     * Reinitialize the trading interface, clearing all offers and selections
+     */
+    public void reinitialize() {
+        targetPlayerCombo.getSelectionModel().clearSelection();
+        clearSpinners();
+        tradeController.clearCurrentOffer();
+        updateDisplay();
     }
 }

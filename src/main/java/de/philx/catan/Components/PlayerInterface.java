@@ -2,6 +2,7 @@ package de.philx.catan.Components;
 
 import de.philx.catan.Controllers.GameController;
 import de.philx.catan.Players.Player;
+import de.philx.catan.Utils.ActionPanelHandler;
 import de.philx.catan.Utils.StyledButton;
 import de.philx.catan.Utils.ThemeManager;
 import javafx.geometry.Insets;
@@ -17,7 +18,7 @@ public class PlayerInterface extends VBox {
 
     private final GameController gameController;
     private final Runnable onReturnToMenu;
-    private final Runnable onGameStateChanged; // New callback for game state changes
+    private final ActionPanelHandler actionPanelHandler; // Handler for action panel
     private final Label currentPlayerLabel;
     private final Label diceResultLabel;
     private final Label gameMessageLabel;
@@ -31,10 +32,11 @@ public class PlayerInterface extends VBox {
     private VBox gameStatusCard;
     private VBox controlsCard;
     
-    public PlayerInterface(GameController gameController, Runnable onReturnToMenu, Runnable onGameStateChanged) {
+    public PlayerInterface(GameController gameController, Runnable onReturnToMenu, 
+                          Runnable onGameStateChanged, ActionPanelHandler actionPanelHandler) {
         this.gameController = gameController;
         this.onReturnToMenu = onReturnToMenu;
-        this.onGameStateChanged = onGameStateChanged;
+        this.actionPanelHandler = actionPanelHandler;
         
         this.setSpacing(15);
         this.setPadding(new Insets(15));
@@ -209,14 +211,13 @@ public class PlayerInterface extends VBox {
         gameController.endTurn();
         updateDisplays();
     }
-    
-    private void handleTrade() {
+      private void handleTrade() {
         // Check if game is started and player is available
         if (!gameController.getPlayerManager().isGameStarted()) {
             showErrorMessage("Das Spiel wurde noch nicht gestartet!");
             return;
         }
-        
+
         Player currentPlayer = gameController.getCurrentPlayer();
         if (currentPlayer == null) {
             showErrorMessage("Kein aktiver Spieler verfügbar! Bitte starte das Spiel neu.");
@@ -225,14 +226,9 @@ public class PlayerInterface extends VBox {
             System.err.println("DEBUG: Current player index: " + gameController.getPlayerManager().getCurrentPlayerIndex());
             return;
         }
-        
-        // Show trading interface
-        TradingInterface.showTradingWindow(
-            gameController.getTradeController(), 
-            gameController.getPlayerManager(), 
-            currentPlayer.getPlayerId(), 
-            this::updateDisplays
-        );
+
+        // Show trading interface using the action panel handler
+        actionPanelHandler.showTradingInterface();
     }
     
     private void handleBuild() {
@@ -248,38 +244,8 @@ public class PlayerInterface extends VBox {
             return;
         }
         
-        // Show building options dialog
-        showBuildingOptionsDialog();
-    }
-    
-    /**
-     * Show building options to the player
-     */
-    private void showBuildingOptionsDialog() {
-        // Create a simple selection dialog for building types
-        javafx.scene.control.ChoiceDialog<String> dialog = new javafx.scene.control.ChoiceDialog<>("Straße", "Straße", "Siedlung", "Stadt");
-        dialog.setTitle("Gebäude bauen");
-        dialog.setHeaderText("Wähle was du bauen möchtest:");
-        dialog.setContentText("Gebäudetyp:");
-        
-        java.util.Optional<String> result = dialog.showAndWait();
-        result.ifPresent(buildingType -> {
-            String mode = null;
-            switch (buildingType) {
-                case "Straße": mode = "road"; break;
-                case "Siedlung": mode = "settlement"; break;
-                case "Stadt": mode = "city"; break;
-            }
-            
-            if (mode != null) {
-                gameController.startBuildingMode(mode);
-                // Trigger refresh of game field
-                if (onGameStateChanged != null) {
-                    onGameStateChanged.run();
-                }
-                updateDisplays();
-            }
-        });
+        // Show building interface using the action panel handler
+        actionPanelHandler.showBuildingInterface();
     }
     
     private void handleQuit() {

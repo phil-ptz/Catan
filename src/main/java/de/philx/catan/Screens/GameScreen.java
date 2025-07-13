@@ -1,12 +1,14 @@
 package de.philx.catan.Screens;
 
 import de.philx.catan.Components.GameLegend;
+import de.philx.catan.Components.HorizontalActionPanel;
 import de.philx.catan.Components.PlayerInterface;
 import de.philx.catan.Controllers.BuildMode;
 import de.philx.catan.Controllers.GameController;
 import de.philx.catan.GameField.Edge;
 import de.philx.catan.GameField.GameField;
 import de.philx.catan.GameField.Node;
+import de.philx.catan.Utils.ActionPanelHandler;
 import de.philx.catan.Utils.ThemeManager;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
@@ -19,12 +21,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class GameScreen extends HBox {
+public class GameScreen extends VBox implements ActionPanelHandler {
 
     private final GameController gameController;
     private Group gameFieldGroup;
     private final PlayerInterface playerInterface;
     private final GameLegend gameLegend;
+    private final HorizontalActionPanel actionPanel;
+    private HBox mainContentArea;
     private VBox gameAreaContainer;
     private ScrollPane gameFieldScrollPane;
 
@@ -34,11 +38,12 @@ public class GameScreen extends HBox {
         this.gameController.startTestGame();
         // Initialize with visual elements for nodes and edges
         this.gameFieldGroup = gameController.getGameField().toGroup(false, null);
-        this.playerInterface = new PlayerInterface(gameController, onReturnToMenu, this::refreshGameFieldDisplay);
+        this.playerInterface = new PlayerInterface(gameController, onReturnToMenu, this::refreshGameFieldDisplay, this);
         this.gameLegend = new GameLegend();
+        this.actionPanel = new HorizontalActionPanel(gameController, this::refreshGameFieldDisplay);
         
         this.setPrefSize(width, height);
-        this.setSpacing(15);
+        this.setSpacing(10);
         this.setPadding(new Insets(15));
         
         setupLayout();
@@ -59,6 +64,9 @@ public class GameScreen extends HBox {
     }
     
     private void setupLayout() {
+        // Main content area (horizontal layout for panels)
+        mainContentArea = new HBox(15);
+        
         // Left side: Player Interface
         VBox leftPanel = new VBox();
         leftPanel.setPrefWidth(340);
@@ -96,9 +104,13 @@ public class GameScreen extends HBox {
         rightPanel.setPrefWidth(280);
         rightPanel.getChildren().add(gameLegend);
         
-        // Add all panels to main container
-        this.getChildren().addAll(leftPanel, gameAreaContainer, rightPanel);
+        // Add all panels to main content area
+        mainContentArea.getChildren().addAll(leftPanel, gameAreaContainer, rightPanel);
         HBox.setHgrow(gameAreaContainer, Priority.ALWAYS);
+        
+        // Add main content area and action panel to the root VBox
+        this.getChildren().addAll(mainContentArea, actionPanel);
+        VBox.setVgrow(mainContentArea, Priority.ALWAYS);
     }
     
     private void setupGameFieldInteraction() {
@@ -406,5 +418,21 @@ public class GameScreen extends HBox {
         
         // If settlement placement failed, try road placement
         handleEdgeBuilding(clickX, clickY);
+    }
+
+    // Implementation of ActionPanelHandler interface
+    @Override
+    public void showTradingInterface() {
+        actionPanel.showTradingInterface();
+    }
+    
+    @Override
+    public void showBuildingInterface() {
+        actionPanel.showBuildingInterface();
+    }
+    
+    @Override
+    public void hideInterface() {
+        actionPanel.hidePanel();
     }
 }
