@@ -79,7 +79,7 @@ public class GameField {
 
     /**
      * Creates all nodes on the board
-     * Uses distance-based deduplication to handle imperfect hexagon spacing
+     * Uses distance-based deduplication with position averaging to center shared nodes
      */
     private void createNodes() {
         int nodeId = 0;
@@ -111,40 +111,48 @@ public class GameField {
             }
         }
         
-        // Now deduplicate based on distance threshold
-        // Two nodes are considered the same if they are within this distance
-        // Since dx is 1.27 times too large, we need a larger tolerance
+        // Group positions that should be merged and calculate their average positions
         double tolerance = r * 0.3; // 30% of radius to handle the spacing issue
-        
-        List<double[]> uniquePositions = new ArrayList<>();
+        List<List<double[]>> nodeGroups = new ArrayList<>();
         
         for (double[] candidate : allPositions) {
-            boolean isDuplicate = false;
+            boolean foundGroup = false;
             
-            for (double[] existing : uniquePositions) {
-                double distance = Math.sqrt(
-                    Math.pow(candidate[0] - existing[0], 2) + 
-                    Math.pow(candidate[1] - existing[1], 2)
-                );
-                
-                if (distance < tolerance) {
-                    isDuplicate = true;
-                    break;
+            // Check if this position belongs to an existing group
+            for (List<double[]> group : nodeGroups) {
+                for (double[] existing : group) {
+                    double distance = Math.sqrt(
+                        Math.pow(candidate[0] - existing[0], 2) + 
+                        Math.pow(candidate[1] - existing[1], 2)
+                    );
+                    
+                    if (distance < tolerance) {
+                        group.add(candidate);
+                        foundGroup = true;
+                        break;
+                    }
                 }
+                if (foundGroup) break;
             }
             
-            if (!isDuplicate) {
-                uniquePositions.add(candidate);
+            // If not found in any group, create a new group
+            if (!foundGroup) {
+                List<double[]> newGroup = new ArrayList<>();
+                newGroup.add(candidate);
+                nodeGroups.add(newGroup);
             }
         }
         
-        // Create nodes from unique positions
-        for (double[] pos : uniquePositions) {
-            nodes.add(new Node(nodeId++, pos[0], pos[1]));
+        // Create nodes from averaged positions of each group
+        for (List<double[]> group : nodeGroups) {
+            double avgX = group.stream().mapToDouble(pos -> pos[0]).average().orElse(0);
+            double avgY = group.stream().mapToDouble(pos -> pos[1]).average().orElse(0);
+            
+            nodes.add(new Node(nodeId++, avgX, avgY));
         }
         
         // Debug output can be removed in production
-        // System.out.println("Created " + nodes.size() + " unique nodes for the game board");
+        // System.out.println("Created " + nodes.size() + " centered nodes for the game board");
     }
     
     /**

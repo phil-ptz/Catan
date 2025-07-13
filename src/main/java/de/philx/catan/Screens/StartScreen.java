@@ -21,7 +21,8 @@ public class StartScreen extends StackPane {
 
     private VBox mainContainer;
     private VBox buttonContainer;
-    private Label titleLabel;
+    private Label titleLine1;
+    private Label titleLine2;
     private Label subtitleLabel;
 
     public StartScreen(Runnable onStart, Runnable onSettings) {
@@ -62,35 +63,41 @@ public class StartScreen extends StackPane {
     }
     
     private void setupTitle() {
-        // Main title
-        titleLabel = new Label("Die Siedler von Catan");
-        titleLabel.setFont(Font.font("Segoe UI", FontWeight.BOLD, 48));
-        titleLabel.setAlignment(Pos.CENTER);
+        // Split the title into two lines for better fit
+        titleLine1 = new Label("Die Siedler");
+        titleLine1.setFont(Font.font("Segoe UI", FontWeight.BOLD, 48));
+        titleLine1.setAlignment(Pos.CENTER);
+        
+        titleLine2 = new Label("von Catan");
+        titleLine2.setFont(Font.font("Segoe UI", FontWeight.BOLD, 48));
+        titleLine2.setAlignment(Pos.CENTER);
         
         // Subtitle
         subtitleLabel = new Label("Willkommen zum digitalen Brettspiel-Erlebnis");
         subtitleLabel.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 16));
         subtitleLabel.setAlignment(Pos.CENTER);
         
-        // Add gradient text effect to title
+        // Add gradient text effect to both title lines
         LinearGradient gradient = new LinearGradient(
             0, 0, 1, 1, true, null,
             new Stop(0, Color.web("#007bff")),
             new Stop(1, Color.web("#0056b3"))
         );
-        titleLabel.setTextFill(gradient);
+        titleLine1.setTextFill(gradient);
+        titleLine2.setTextFill(gradient);
         
-        // Add drop shadow effect
+        // Add drop shadow effect to both title lines
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(8.0);
         dropShadow.setOffsetX(2.0);
         dropShadow.setOffsetY(2.0);
         dropShadow.setColor(Color.color(0, 0, 0, 0.3));
-        titleLabel.setEffect(dropShadow);
+        titleLine1.setEffect(dropShadow);
+        titleLine2.setEffect(dropShadow);
         
-        VBox titleContainer = new VBox(10);
+        VBox titleContainer = new VBox(5); // Reduced spacing between title lines
         titleContainer.setAlignment(Pos.CENTER);
-        titleContainer.getChildren().addAll(titleLabel, subtitleLabel);
+        titleContainer.getChildren().addAll(titleLine1, titleLine2, subtitleLabel);
         
         mainContainer.getChildren().add(titleContainer);
     }
