@@ -202,19 +202,4 @@ public class Node {
 
         return group;
     }
-
-    /**
-     * Convert player color character to JavaFX Color
-     * @param colorChar The color character (R, B, G, Y)
-     * @return JavaFX Color object
-     */
-    private Color getPlayerColorAsJavaFXColor(char colorChar) {
-        switch (colorChar) {
-            case 'R': return Color.RED;
-            case 'B': return Color.BLUE;
-            case 'G': return Color.GREEN;
-            case 'Y': return Color.YELLOW;
-            default: return Color.GRAY;
-        }
-    }
 }
