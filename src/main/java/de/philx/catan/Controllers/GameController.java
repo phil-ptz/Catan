@@ -40,7 +40,6 @@ public class GameController {
     private boolean inSetupPhase;
     private int setupRound; // 1 or 2
     private int setupPlayerIndex; // Current player in setup
-    private boolean setupGoingReverse; // Direction for setup
     private int lastPlacedSettlementNodeId; // Track last settlement for road validation
 
     public GameController() {
@@ -63,7 +62,6 @@ public class GameController {
         this.inSetupPhase = true;
         this.setupRound = 1;
         this.setupPlayerIndex = 0;
-        this.setupGoingReverse = false;
         this.lastPlacedSettlementNodeId = -1;
 
         // Initialize test players for development
@@ -94,11 +92,11 @@ public class GameController {
         inSetupPhase = true;
         setupRound = 1;
         setupPlayerIndex = 0;
-        setupGoingReverse = false;
         
         Player currentPlayer = getCurrentSetupPlayer();
-        setGameMessage("🏗️ AUFBAUPHASE RUNDE 1: " + currentPlayer.getName() + 
-                      " (" + currentPlayer.getColor() + ") platziere deine erste Siedlung (kostenlos)!");
+        setGameMessage("🏗️ AUFBAUPHASE STARTET! Jeder Spieler platziert 2 Siedlungen und 2 Straßen kostenlos.\n" +
+                      "RUNDE 1: " + currentPlayer.getName() + 
+                      " (" + currentPlayer.getColor() + ") platziere deine erste Siedlung!");
         updateCurrentPlayerDisplay();
     }
     
@@ -107,11 +105,8 @@ public class GameController {
      */
     private Player getCurrentSetupPlayer() {
         List<Player> players = playerManager.getAllPlayers();
-        if (setupGoingReverse) {
-            return players.get(players.size() - 1 - setupPlayerIndex);
-        } else {
-            return players.get(setupPlayerIndex);
-        }
+        // For round 2, setupPlayerIndex already contains the correct index in reverse order
+        return players.get(setupPlayerIndex);
     }
     
     /**
@@ -140,7 +135,7 @@ public class GameController {
         lastPlacedSettlementNodeId = nodeId;
         
         setGameMessage("✅ Siedlung platziert! " + currentPlayer.getName() + 
-                      " (" + currentPlayer.getColor() + ") platziere jetzt deine Straße (kostenlos)!");
+                      " (" + currentPlayer.getColor() + ") platziere jetzt deine dazugehörige Straße!");
         startBuildingMode("setup_road");
         
         return true;
@@ -228,19 +223,18 @@ public class GameController {
      */
     private void advanceSetupPhase() {
         if (setupRound == 1) {
-            // First round: forward order
+            // First round: each player places 1 settlement + 1 road in forward order
             setupPlayerIndex++;
             if (setupPlayerIndex >= playerManager.getAllPlayers().size()) {
                 // Start second round in reverse order
                 setupRound = 2;
-                setupGoingReverse = true;
-                setupPlayerIndex = 0; // Will be reversed to last player
+                setupPlayerIndex = playerManager.getAllPlayers().size() - 1; // Start with last player
             }
         } else {
-            // Second round: reverse order
-            setupPlayerIndex++;
-            if (setupPlayerIndex >= playerManager.getAllPlayers().size()) {
-                // Setup phase complete
+            // Second round: each player places 1 settlement + 1 road in reverse order
+            setupPlayerIndex--;
+            if (setupPlayerIndex < 0) {
+                // Setup phase complete - all players have placed 2 settlements + 2 roads
                 finishSetupPhase();
                 return;
             }
@@ -248,8 +242,12 @@ public class GameController {
         
         Player nextPlayer = getCurrentSetupPlayer();
         String phaseText = setupRound == 1 ? "RUNDE 1" : "RUNDE 2";
-        setGameMessage("🏗️ AUFBAUPHASE " + phaseText + ": " + nextPlayer.getName() + 
-                      " (" + nextPlayer.getColor() + ") platziere deine Siedlung (kostenlos)!");
+        String buildingCount = setupRound == 1 ? "erste" : "zweite";
+        String roundInfo = setupRound == 1 ? "(alle Spieler in Reihenfolge)" : "(alle Spieler in Rückwärts-Reihenfolge)";
+        
+        setGameMessage("🏗️ AUFBAUPHASE " + phaseText + " " + roundInfo + ":\n" + 
+                      nextPlayer.getName() + " (" + nextPlayer.getColor() + ") platziere deine " + 
+                      buildingCount + " Siedlung!");
         updateCurrentPlayerDisplay();
     }
     
@@ -263,8 +261,9 @@ public class GameController {
         playerManager.setCurrentPlayerIndex(0);
         
         updateCurrentPlayerDisplay();
-        setGameMessage("🎉 Aufbauphase beendet! " + getCurrentPlayer().getName() + 
-                      " (" + getCurrentPlayer().getColor() + ") beginnt das Spiel. Würfle!");
+        setGameMessage("🎉 AUFBAUPHASE BEENDET! Alle Spieler haben 2 Siedlungen und 2 Straßen platziert.\n" +
+                      "Das normale Spiel beginnt: " + getCurrentPlayer().getName() + 
+                      " (" + getCurrentPlayer().getColor() + ") würfle!");
     }
     
     // === Building Methods ===
